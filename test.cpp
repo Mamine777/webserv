@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   test.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
+/*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 13:52:59 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/17 17:33:03 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/17 23:15:09 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <sys/socket.h>
+/*#include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <netinet/in.h>
@@ -21,7 +21,7 @@
 #include <signal.h>
 #include "MessageException.hpp"
 
-void reapZombies(int) {
+ void reapZombies(int) {
     while (waitpid(-1, nullptr, WNOHANG) > 0);
 }
 
@@ -98,4 +98,11 @@ int main(void) {
 Server app;
 app.get("/home", [](Request req, Response res) {
 	res.send("hello world")
-})
+}) */
+
+#include "Server.hpp"
+
+int main(void) {
+    Server  app;
+    app.listen(8080);
+}
