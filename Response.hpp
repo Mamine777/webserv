@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 15:41:15 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/18 17:14:30 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/18 17:32:01 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,6 @@ public:
 	int	getClientSock();
 	
 	void	sendText(std::string str);
-	void	
+	void	sendFile(std::string path);
 };
 
