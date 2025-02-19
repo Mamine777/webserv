@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 16:31:48 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/19 15:27:26 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/19 17:16:51 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,9 +26,37 @@ int Response::getClientSock() {
 	return this->clientSocket;
 }
 
+void Response::append(std::string field) {
+	this->append(field, "");
+}
+
+void Response::append(std::string field, std::string value) {
+	this->head.getParams().insert(std::pair<std::string, std::string>(field, value));
+}
+
+void Response::attachment() {
+	this->head.setParam("Content-Disposition", "attachment");
+}
+
+void Response::attachment(std::string path) {
+	std::string	filename = path.substr(path.find_last_of('/') + 1);
+	this->head.setParam("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+	if (filename.find_last_of('.') != std::string::npos)
+		this->type(filename.substr(filename.find_last_of('.') + 1));
+}
+
+void Response::cookie(std::string name, std::string value) {
+	this->head.setCookie(name, value);
+}
+
 Response &Response::status(unsigned int status) {
 	this->head.setStatus(status);
 	return (*this);
+}
+
+void Response::type(std::string type) {
+	//TODO: do this or whatever
+	(void)type;
 }
 
 void Response::sendText(std::string str) {

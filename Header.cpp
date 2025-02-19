@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 12:48:43 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/19 15:36:00 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/19 17:15:32 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,40 @@ Header::~Header() {}
 
 std::string Header::getHttpVer() { return this->httpVer; }
 
-std::map<std::string, std::string> &Header::getParams() {
+std::multimap<std::string, std::string> &Header::getParams() {
 	return this->parameters;
+}
+
+std::string Header::getCookie(std::string name) {
+	std::pair<std::multimap<std::string, std::string>::iterator, std::multimap<std::string, std::string>::iterator> range = this->cookies.equal_range(name);
+	if (range.first == this->cookies.end())
+		return "";
+	std::multimap<std::string, std::string>::iterator	last = range.second;
+	return (*(--last)).second;
+}
+
+void Header::setCookie(std::string name, std::string val) {
+	std::pair<std::multimap<std::string, std::string>::iterator, std::multimap<std::string, std::string>::iterator> range = this->cookies.equal_range(name);
+	if (range.first == this->cookies.end()) {
+		this->cookies.insert(std::pair<std::string, std::string>(name, val));
+		return ;
+	}
+	std::multimap<std::string, std::string>::iterator	last = range.second;
+	(*(--last)).second = val;
+}
+
+std::string Header::cookieToStr() {
+	std::multimap<std::string, std::string>::iterator	it = this->cookies.begin();
+	if (it == this->cookies.end())
+		return "";
+
+	std::string buff;
+	for (; it != this->cookies.end(); ++it) {
+		if (it != this->cookies.begin())
+			buff += " ";
+		buff.append((*it).first + "=" + (*it).second + ";");
+	}
+	return buff;
 }
 
 std::string Header::getField(std::string key) {
@@ -69,7 +101,7 @@ ReqHeader::ReqHeader(std::string header) {
 			buff.erase(buff.end() - 1);
 		std::string key = buff.substr(0, buff.find(": "));
 		std::string val = buff.substr(buff.find(": ") + 2);
-		this->parameters[key] = val;
+		this->parameters.insert(std::pair<std::string, std::string>(key, val));
 	}
 }
 
@@ -225,8 +257,13 @@ static std::string getStatMsg(unsigned int status) {
 	}
 }
 
+
+
 void ResHeader::setParam(std::string key, std::string value) {
-	this->parameters[key] = value;
+	std::pair<std::multimap<std::string, std::string>::iterator, std::multimap<std::string, std::string>::iterator>	range = this->parameters.equal_range(key);
+	if (range.first != this->parameters.end())
+		this->parameters.erase(range.first, range.second);
+	this->parameters.insert(std::pair<std::string, std::string>(key, value));
 }
 
 void ResHeader::setStatus(unsigned int status) { this->status = status; }
@@ -239,6 +276,8 @@ std::string ResHeader::toString() {
 
 	std::string buff = this->httpVer + " " + ss.str() + " " + getStatMsg(this->status) + "\r\n";
 
+	if (!this->cookies.empty() && this->getField("Cookie").empty())
+		this->parameters.insert(std::pair<std::string, std::string>(std::string("Cookie"), this->cookieToStr()));
 	std::map<std::string, std::string>::iterator it = this->parameters.begin();
 	for (; it != this->parameters.end(); ++it)
 		buff += (*it).first + ": " + (*it).second + "\r\n";

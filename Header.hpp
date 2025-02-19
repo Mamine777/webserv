@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 12:44:24 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/18 16:39:04 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/19 17:11:27 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,14 +19,19 @@
 class Header
 {
 protected:
-	std::map	<std::string, std::string>parameters;
-	std::string	httpVer;
+	std::multimap<std::string, std::string> cookies;
+	std::multimap<std::string, std::string>	parameters;
+	std::string								httpVer;
 public:
 	Header();
 	virtual ~Header();
 
 	std::string	getHttpVer();
-	std::map	<std::string, std::string>&getParams();
+	std::multimap<std::string, std::string>	&getParams();
+
+	std::string	getCookie(std::string name);
+	void		setCookie(std::string name, std::string val);
+	std::string cookieToStr();
 
 	std::string	getField(std::string key);
 	virtual std::string toString() = 0;
@@ -37,6 +42,7 @@ private:
 	std::string	method;
 	std::string	ressource;
 public:
+	//TODO: generate cookie multimap
 	ReqHeader(std::string header);
 	~ReqHeader();
 	
