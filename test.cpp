@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 13:52:59 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/18 17:49:30 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/19 15:28:25 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ void	homeGet(Request &req, Response &res) {
 	(void)req;
 	(void)res;
 	std::cout << "Sound the alarms, someones in my home" << std::endl;
+	res.status(400);
 	res.sendFile("index.html");
 }
 

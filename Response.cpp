@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 16:31:48 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/18 18:04:09 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/19 15:27:26 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,11 @@ Response::~Response() {
 
 int Response::getClientSock() {
 	return this->clientSocket;
+}
+
+Response &Response::status(unsigned int status) {
+	this->head.setStatus(status);
+	return (*this);
 }
 
 void Response::sendText(std::string str) {
