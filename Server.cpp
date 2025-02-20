@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
+/*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 17:19:18 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/20 17:46:34 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/20 23:36:23 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ Server::Server() {}
 
 Server::~Server() {}
 
-static std::string recieveData(int clientSocket) {
+/* static std::string recieveData(int clientSocket) {
 	char buff[1024];
 	std::string ret;
 	int bytesRead;
@@ -61,7 +61,7 @@ static std::string recieveData(int clientSocket) {
 	else if (bytesRead < 0)
 		std::cerr << "Error recieving data" << std::endl;
 	return (ret);
-}
+} */
 
 void Server::addPort(uint16_t port) {
 	int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -117,7 +117,7 @@ void Server::addPort(uint16_t port) {
 				Request req(reqbuff);
 				Response res(fds[i].fd, req.getHeader().getHttpVer());
 				this->dispatchRequest(req, res);
-				/* std::string response =
+				std::string response =
 					"HTTP/1.1 404 OK\r\n"
 					"Content-Type: text/html\r\n"
 					"Content-Length: 13\r\n"

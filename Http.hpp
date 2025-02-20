@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   http.hpp                                           :+:      :+:    :+:   */
+/*   Http.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
+/*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 17:01:29 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/20 17:26:02 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/20 23:42:29 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,14 +15,14 @@
 #include "Server.hpp"
 #include <vector>
 
-class http
+class Http
 {
 private:
-	std::vector<Server &>	servers;
+	std::vector<Server *>	servers;
 public:
-	http();
-	~http();
+	Http();
+	~Http();
 
-	void	addServer(Server &server);
+	void	addServer(Server *server);
 	void	start();
 };

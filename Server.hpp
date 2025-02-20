@@ -3,16 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
+/*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 16:54:44 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/20 17:27:38 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/20 23:48:00 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+#pragma once
 
 #include <netinet/in.h>
 #include <map>
 #include <string>
+#include <vector>
 #include "Request.hpp"
 #include "Response.hpp"
 
