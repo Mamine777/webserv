@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 13:52:59 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/19 15:28:25 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/20 16:58:30 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,5 +34,4 @@ int main(void) {
 	app.get("/nothome/home", nothomeGet);
 	
     app.listen(8080);
-
 }

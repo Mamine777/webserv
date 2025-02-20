@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 17:19:18 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/19 15:34:24 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/20 17:46:34 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,14 +39,11 @@ void Server::dispatchRequest(Request &req, Response &res) {
 		(*it).second(req, res);
 }
 
-Server::Server() : serverSocket(socket(AF_INET, SOCK_STREAM, 0)) {
-	if (this->serverSocket < 0) {
-		throw MessageException(strerror(errno));
-	}
-
-	int opt = 1;
-	setsockopt(this->serverSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+std::vector<int> &Server::getServerSocks() {
+	return (this->serverSocks);
 }
+
+Server::Server() {}
 
 Server::~Server() {}
 
@@ -66,24 +63,34 @@ static std::string recieveData(int clientSocket) {
 	return (ret);
 }
 
-void Server::listen(uint16_t port) {
-	this->serverAddr.sin_family = AF_INET;
-	this->serverAddr.sin_port = htons(port);
-	this->serverAddr.sin_addr.s_addr = INADDR_ANY;
-
-	if (bind(serverSocket, (struct sockaddr *)&this->serverAddr,
-			 sizeof(this->serverAddr)) < 0) {
-		close(serverSocket);
-		throw MessageException(strerror(errno));
-	}
-	if (::listen(this->serverSocket, 5) < 0) {
-		close(serverSocket);
+void Server::addPort(uint16_t port) {
+	int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+	if (serverSocket < 0) {
 		throw MessageException(strerror(errno));
 	}
 
-	std::clog << "Server listening on port " << port << std::endl;
+	int opt = 1;
+	setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
-	// TODO: pushback all the sockets from the serverSocket Vector
+	sockaddr_in serverAddr;
+	serverAddr.sin_family = AF_INET;
+	serverAddr.sin_port = htons(port);
+	serverAddr.sin_addr.s_addr = INADDR_ANY;
+
+	if (bind(serverSocket, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0) {
+		close(serverSocket);
+		throw MessageException(strerror(errno));
+	} /*
+	 if (::listen(serverSocket, 5) < 0) {
+		 close(serverSocket);
+		 throw MessageException(strerror(errno));
+	 } */
+
+	this->serverSocks.push_back(serverSocket);
+
+	//std::clog << "Server listening on port " << port << std::endl;
+
+	/*// TODO: pushback all the sockets from the serverSocket Vector
 	std::vector<pollfd> fds;
 	fds.push_back((pollfd){this->serverSocket, POLLIN, 0});
 	while (true) {
@@ -117,13 +124,14 @@ void Server::listen(uint16_t port) {
 					"Connection: close\r\n"
 					"\r\n"
 					"Hello, world!";
-				send(fds[i].fd, response.c_str(), response.size(), 0); */
+				send(fds[i].fd, response.c_str(), response.size(), 0);
 				close(fds[i].fd);
 				fds.erase(fds.begin() + i);
 				i--;
 			}
 		}
 	}
+	*/
 }
 
 void Server::get(std::string path, void (*f)(Request &req, Response &res)) {
