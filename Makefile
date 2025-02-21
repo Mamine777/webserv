@@ -4,7 +4,7 @@ OBJ = ${SRC:.cpp=.o}
 
 NAME = webserv
 
-CPPFLAGS = -Wall -Wextra -Werror -g3
+CPPFLAGS = -Wall -Wextra -Werror -g3 -Ofast -fsanitize=address
 STDFLAG = -std=c++98
 
 all: ${NAME}
