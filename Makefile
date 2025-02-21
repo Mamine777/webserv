@@ -1,4 +1,4 @@
-SRC = Header.cpp MessageException.cpp Request.cpp Response.cpp Server.cpp http.cpp test.cpp 
+SRC = Header.cpp MessageException.cpp Request.cpp Response.cpp Server.cpp Http.cpp test.cpp 
 
 OBJ = ${SRC:.cpp=.o}
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Header.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
+/*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 12:44:24 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/19 17:11:27 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/21 17:18:15 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,8 @@ public:
 	//TODO: generate cookie multimap
 	ReqHeader(std::string header);
 	~ReqHeader();
+
+	void	parseCookies();
 	
 	std::string	getMethod();
 	std::string	getRessource();

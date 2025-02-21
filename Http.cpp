@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   http.cpp                                           :+:      :+:    :+:   */
+/*   Http.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 17:25:34 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/21 16:01:39 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/21 17:46:46 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,7 @@ void Http::start() {
                 } else if (fds[i].revents & POLLOUT) { 
                     std::string reqbuff = recieveData(currentFD);
                     if (!reqbuff.empty()) {
-						Request req(reqbuff);
+						Request req(reqbuff, currentFD);
 						Response res(currentFD, req.getHeader().getHttpVer());
 						std::map<int, Server*>::iterator servIt = requestServer.find(currentFD);
 						if (servIt == requestServer.end())

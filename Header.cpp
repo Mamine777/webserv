@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Header.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
+/*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 12:48:43 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/19 17:15:32 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/21 17:18:27 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,9 +103,28 @@ ReqHeader::ReqHeader(std::string header) {
 		std::string val = buff.substr(buff.find(": ") + 2);
 		this->parameters.insert(std::pair<std::string, std::string>(key, val));
 	}
+
+	if (!this->getField("Cookie").empty())
+		this->parseCookies();
 }
 
 ReqHeader::~ReqHeader() {}
+
+void ReqHeader::parseCookies() {
+	std::string	cookieHead = this->getField("Cookie");
+	size_t		pos;
+	while ((pos = cookieHead.find("; ")) != std::string::npos)
+		cookieHead.replace(pos, 2, "\n");
+
+	std::stringstream	ss(cookieHead);
+	std::string			buff;
+	while (!ss.eof()) {
+		std::getline(ss, buff);
+		std::string key = buff.substr(0, buff.find('='));
+		std::string val = buff.substr(buff.find('=') + 1);
+		this->cookies.insert(std::pair<std::string, std::string>(key, val));
+	}
+}
 
 std::string ReqHeader::getMethod() { return this->method; }
 

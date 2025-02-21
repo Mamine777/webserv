@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
+/*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 12:10:58 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/18 15:47:00 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/21 18:14:18 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,12 @@
 class Request {
 private:
 	ReqHeader	head;
+	std::string	rawReq;
+	std::string	rawBody;
 public:
-	Request(std::string req);
+	Request(std::string req, int clientSock);
 	~Request();
+
 
 	ReqHeader	&getHeader();
 };
