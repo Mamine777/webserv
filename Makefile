@@ -1,26 +1,36 @@
-SRC = Header.cpp MessageException.cpp Request.cpp Response.cpp Server.cpp Http.cpp test.cpp 
+SRC_PATH = src/
+OBJ_PATH = obj/
+INC_PATH = includes/
+OUT_PATH = bin/
 
-OBJ = ${SRC:.cpp=.o}
+SRC_FILES = Header.cpp Http.cpp MessageException.cpp Request.cpp Response.cpp Server.cpp test.cpp
 
-NAME = webserv
+SRC = $(addprefix ${SRC_PATH}, ${SRC_FILES})
+OBJ = $(patsubst $(SRC_PATH)%.cpp, $(OBJ_PATH)%.o, ${SRC})
+FINAL = bin/webserv
 
-CPPFLAGS = -Wall -Wextra -Werror -g3 -Ofast -fsanitize=address
-STDFLAG = -std=c++98
+FLAGS = -Wall -Wextra -Werror -std=c++98
 
-all: ${NAME}
+all: ${FINAL}
 
-.cpp.o:
-	c++ ${CPPFLAGS} ${STDFLAG} -c $< -o ${<:.cpp=.o}
+${FINAL}: ${OBJ} | ${OUT_PATH}
+	c++ ${FLAGS} -I ${INC_PATH} -o $@ $^
+
+${OBJ_PATH}%.o: ${SRC_PATH}%.cpp | ${OBJ_PATH}
+	c++ ${FLAGS} -I ${INC_PATH} -c $< -o $@
+
+${OBJ_PATH}:
+	mkdir -p ${OBJ_PATH}
+
+${OUT_PATH}:
+	mkdir -p ${OUT_PATH}
 
 clean:
-	rm -f ${OBJ}
+	rm -rf ${OBJ_PATH}
 
 fclean: clean
-	rm -f ${NAME}
+	rm -rf ${OUT_PATH}
 
-re : fclean all
-
-${NAME}: ${OBJ}
-	c++ ${CPPFLAGS} ${STDFLAG} ${OBJ} -o ${NAME}
+re: fclean all
 
 .PHONY: all clean fclean re
