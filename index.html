@@ -1,11 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Document</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cool Animation</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(-45deg, #ff416c, #ff4b2b, #1f4037, #99f2c8);
+            background-size: 400% 400%;
+            animation: gradientBG 10s ease infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            text-align: center;
+            color: white;
+        }
+
+        /* Background animation */
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Title animation */
+        .title {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(-50px);
+            animation: fadeIn 1s forwards ease-in-out;
+        }
+
+        /* Button animation */
+        .glowing-btn {
+            position: relative;
+            font-size: 1.5rem;
+            padding: 15px 40px;
+            border: none;
+            outline: none;
+            background: transparent;
+            color: white;
+            cursor: pointer;
+            overflow: hidden;
+            transition: 0.3s ease-in-out;
+        }
+
+        .glowing-btn::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            background: linear-gradient(45deg, #ff4b2b, #ff416c, #99f2c8, #1f4037);
+            z-index: -1;
+            border-radius: 50px;
+            filter: blur(10px);
+            opacity: 0;
+            transition: 0.3s ease-in-out;
+        }
+
+        .glowing-btn:hover::before {
+            opacity: 1;
+        }
+
+        .glowing-text {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Title fade-in animation */
+        @keyframes fadeIn {
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 </head>
 <body>
-	<h1>This is not a home page :)</h1>
+    <div class="container">
+        <h1 class="title">Welcome to the Animation</h1>
+        <button class="glowing-btn">
+            <span class="glowing-text">Click Me</span>
+        </button>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const button = document.querySelector(".glowing-btn");
+
+            button.addEventListener("click", function() {
+                button.classList.add("clicked");
+
+                setTimeout(() => {
+                    button.classList.remove("clicked");
+                }, 1000);
+            });
+        });
+    </script>
 </body>
 </html>

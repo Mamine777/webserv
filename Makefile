@@ -1,26 +1,37 @@
-SRC = Header.cpp MessageException.cpp Request.cpp Response.cpp Server.cpp test.cpp
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: mokariou <mokariou@student.42.fr>          +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2025/02/22 14:51:14 by mokariou          #+#    #+#              #
+#    Updated: 2025/02/23 18:41:35 by mokariou         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
 
-OBJ = ${SRC:.cpp=.o}
+NAME =  webserv
+CC = c++
+GFLAGS = -Wall -Wextra -Werror -std=c++98 #-pedantic -fsanitize=address
 
-NAME = webserv
+OBJ_DIR = obj/
+SRC = ConfigParse.cpp main.cpp server.cpp Request.cpp Response.cpp utils_resp.cpp cgi.cpp
 
-CPPFLAGS = -Wall -Wextra -Werror -g3
-STDFLAG = -std=c++98
+SRCS = $(SRC)
+OBJ = $(patsubst %.c, $(OBJ_DIR)%.o, $(SRCS))
 
-all: ${NAME}
+all: $(NAME)
 
-.cpp.o:
-	c++ ${CPPFLAGS} ${STDFLAG} -c $< -o ${<:.cpp=.o}
+$(NAME): $(OBJ)
+			$(CC) $(GFLAGS) $(OBJ) -o $(NAME)
 
+
+$(OBJ_DIR)%.o: %.c
+			@mkdir -p $(OBJ_DIR)
+			@mkdir -p $(dir $@)
+			$(CC) $(GFLAGS) -c $< -o $@
 clean:
-	rm -f ${OBJ}
-
+		rm -rf $(OBJ_DIR)
 fclean: clean
-	rm -f ${NAME}
-
-re : fclean all
-
-${NAME}: ${OBJ}
-	c++ ${CPPFLAGS} ${STDFLAG} ${OBJ} -o ${NAME}
-
-.PHONY: all clean fclean re
+		rm -f $(NAME)
+re: fclean all
