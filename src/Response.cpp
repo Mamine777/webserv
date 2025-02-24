@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 16:31:48 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/24 18:05:20 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/24 18:09:08 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -214,6 +214,8 @@ void Response::type(std::string type) {
 		this->head.setParam("Content-Type", "video/3gpp2");
 	else if (fileExt == "7z")
 		this->head.setParam("Content-Type", "application/x-7z-compressed");
+	else
+		this->head.setParam("Content-Type", "text/plain");
 }
 
 void Response::sendText(std::string str) {
@@ -238,8 +240,8 @@ void Response::sendFile(std::string path) {
 	std::stringstream ss;
 	ss << file.tellg();
 	file.seekg(0, std::ios::beg);
-	//! Change the type to smth better icl
-	this->head.setParam("Content-Type", "text/html\n");
+	this->type(path);
+	std::cout << "type = " << this->head.getField("Content-Type") << std::endl;
 	this->head.setParam("Content-Length", ss.str());
 	this->head.setParam("Connection", "close");
 	std::string ret = this->head.toString();
