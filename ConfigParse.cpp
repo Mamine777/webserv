@@ -6,7 +6,7 @@
 /*   By: mokariou <mokariou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/22 15:51:38 by mokariou          #+#    #+#             */
-/*   Updated: 2025/02/24 16:30:41 by mokariou         ###   ########.fr       */
+/*   Updated: 2025/02/24 19:43:04 by mokariou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ void    ConfigParser::parseConfig(){
 	_config.ports.push_back(8080);
 	_config.ports.push_back(7070);
 	_config.ports.push_back(8081);
+	
 	_config.host = "127.0.0.1";
 	_config.client_body_size_limit = 1000000;
 	_config.CGI_file = "./a.out";
