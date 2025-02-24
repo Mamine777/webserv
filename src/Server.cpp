@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
+/*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 17:19:18 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/20 23:36:23 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/24 16:48:54 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,17 @@
 
 void Server::dispatchRequest(Request &req, Response &res) {
 	std::map<std::string, void (*)(Request &, Response &)>::iterator it;
-	if (req.getHeader().getMethod() == "GET")
+	
+	if (req.getHeader().getMethod() == "GET") {
+		std::vector<StaticHandler>::iterator statit = this->statics.begin();
+		for (; statit != this->statics.end(); ++statit) {
+			if (!req.getHeader().getRessource().compare(0, (*statit).getUriPath().length(), (*statit).getUriPath())) {
+				(*statit).execute(req, res);
+				return ;
+			}
+		}
 		it = this->getMap.find(req.getHeader().getRessource());
+	}
 	if (req.getHeader().getMethod() == "POST")
 		it = this->postMap.find(req.getHeader().getRessource());
 	if (it == this->postMap.end() || it == this->getMap.end())
@@ -43,25 +52,17 @@ std::vector<int> &Server::getServerSocks() {
 	return (this->serverSocks);
 }
 
+void Server::get(std::string path, void (*f)(Request &req, Response &res)) {
+	this->getMap.insert(std::make_pair(path, f));
+}
+
+void Server::serveStatic(std::string urlPath, std::string rootPath, std::string defhtml) {
+	this->statics.push_back(StaticHandler(urlPath, rootPath, defhtml));
+}
+
 Server::Server() {}
 
 Server::~Server() {}
-
-/* static std::string recieveData(int clientSocket) {
-	char buff[1024];
-	std::string ret;
-	int bytesRead;
-
-	while ((bytesRead = recv(clientSocket, buff, sizeof(buff), 0)) > 0) {
-		ret.append(buff, bytesRead);
-		if (ret.find("\r\n\r\n") != std::string::npos) break;
-	}
-	if (bytesRead == 0)
-		std::clog << "Client closed connection: " << clientSocket << std::endl;
-	else if (bytesRead < 0)
-		std::cerr << "Error recieving data" << std::endl;
-	return (ret);
-} */
 
 void Server::addPort(uint16_t port) {
 	int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -80,60 +81,6 @@ void Server::addPort(uint16_t port) {
 	if (bind(serverSocket, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0) {
 		close(serverSocket);
 		throw MessageException(strerror(errno));
-	} /*
-	 if (::listen(serverSocket, 5) < 0) {
-		 close(serverSocket);
-		 throw MessageException(strerror(errno));
-	 } */
-
+	} 
 	this->serverSocks.push_back(serverSocket);
-
-	//std::clog << "Server listening on port " << port << std::endl;
-
-	/*// TODO: pushback all the sockets from the serverSocket Vector
-	std::vector<pollfd> fds;
-	fds.push_back((pollfd){this->serverSocket, POLLIN, 0});
-	while (true) {
-		if (poll(fds.data(), fds.size(), -1) < 0)
-			throw MessageException(strerror(errno));
-
-		for (size_t i = 0; i < fds.size(); i++) {
-			if (fds[i].fd == this->serverSocket && fds[i].revents & POLLIN) {
-				sockaddr_in clientAddr;
-				socklen_t clientLen = sizeof(clientAddr);
-				int clientSocket =
-					accept(this->serverSocket, (struct sockaddr *)&clientAddr,
-						   &clientLen);
-
-				if (clientSocket == -1) {
-					std::cerr << "Failed to accept client" << std::endl;
-					continue;
-				}
-				std::clog << "New client connected: " << clientSocket
-						  << std::endl;
-				fds.push_back((pollfd){clientSocket, POLLIN, 0});
-			} else if (fds[i].revents & POLLIN) {
-				std::string reqbuff = recieveData(fds[i].fd);
-				Request req(reqbuff);
-				Response res(fds[i].fd, req.getHeader().getHttpVer());
-				this->dispatchRequest(req, res);
-				std::string response =
-					"HTTP/1.1 404 OK\r\n"
-					"Content-Type: text/html\r\n"
-					"Content-Length: 13\r\n"
-					"Connection: close\r\n"
-					"\r\n"
-					"Hello, world!";
-				send(fds[i].fd, response.c_str(), response.size(), 0);
-				close(fds[i].fd);
-				fds.erase(fds.begin() + i);
-				i--;
-			}
-		}
-	}
-	*/
-}
-
-void Server::get(std::string path, void (*f)(Request &req, Response &res)) {
-	this->getMap.insert(std::make_pair(path, f));
 }
