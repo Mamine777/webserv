@@ -6,7 +6,7 @@
 /*   By: mokariou <mokariou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 16:33:48 by mokariou          #+#    #+#             */
-/*   Updated: 2025/02/24 14:26:53 by mokariou         ###   ########.fr       */
+/*   Updated: 2025/02/25 15:07:06 by mokariou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,6 @@ std::string cgi::executeCgi(std::string path, const std::string &query)
         {
             buffer[bytes] = '\0';
             output += buffer;
-			std::cout << "====>"<<output << std::endl; 
         }
         close(fd[0]);
         waitpid(pid, NULL, 0);

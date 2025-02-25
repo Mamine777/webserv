@@ -6,7 +6,7 @@
 /*   By: mokariou <mokariou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/23 16:30:53 by mokariou          #+#    #+#             */
-/*   Updated: 2025/02/23 16:34:35 by mokariou         ###   ########.fr       */
+/*   Updated: 2025/02/25 18:39:10 by mokariou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 
 std::string server::getContentType(const std::string &filePath) {
     size_t dotPos = filePath.find_last_of('.');
+
+    std::cout << "===================>" << filePath << std::endl;
     if (dotPos == std::string::npos) return "text/plain";
 
     std::string extension = filePath.substr(dotPos + 1);

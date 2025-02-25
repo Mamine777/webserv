@@ -6,13 +6,14 @@
 /*   By: mokariou <mokariou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 18:55:28 by mokariou          #+#    #+#             */
-/*   Updated: 2025/02/25 13:19:02 by mokariou         ###   ########.fr       */
+/*   Updated: 2025/02/25 18:59:45 by mokariou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "server.h"
 #include "ConfigParse.h"
 #include "Response.h"
+#include <string>
 #include "cgi.h"
 
 server::server(Config &config, ParseConfig &parser) : _config(config), configParse(parser) {
@@ -77,6 +78,8 @@ void server::acceptConnection() {
 			clientPollfd.events = POLLIN;
 			_pollfds.push_back(clientPollfd);
 
+	 		ServerConfig *serverConfig = &_config.servers[i];
+            _serverConfigs[clientSocket] = serverConfig;
 			std::cout << "New connection accepted on socket " << _pollfds[i].fd << std::endl;
 		}
 	}
@@ -105,10 +108,16 @@ void	server::handleClient(int clientSocket)
 		return ;
 	}
 	std::string request(buffer, bytesRead);
-	//std::cout << request << std::endl;
+	std::cout << request << std::endl;
 	req.parse(request);
 	ServerConfig *serverConfig = NULL;
 
+	if (_serverConfigs.find(clientSocket) == _serverConfigs.end()) {
+		std::cerr << "Erreur : clientSocket introuvable dans _serverConfigs !" << std::endl;
+		return;
+	}
+	serverConfig = _serverConfigs[clientSocket];
+	std::cout << "Server Config: " << serverConfig->server_name << " (Port: " << serverConfig->port << ")" << std::endl;
 	for (size_t i = 0; i <_serverSockets.size(); i++)
 	{
 		if (std::find(_serverSockets.begin(), _serverSockets.end(), clientSocket) != _serverSockets.end())
@@ -120,13 +129,17 @@ void	server::handleClient(int clientSocket)
 	if (!serverConfig){response.setStatus(505), response.setBody("500 Internal Server Error");}
 
 	LocConfig *location = NULL;
-	std::cout << "==========================================>"<< serverConfig->locations.size() << std::endl;
-	exit (1);
-	for (size_t i = 0; i < serverConfig->locations.size(); i++) {
-		if (req.getPath().find(serverConfig->locations[i].path) == 0)
+	size_t longestMatch = 0;
+
+	std::cout << "Nombre de locations dans serverConfig : " << serverConfig->locations.size() << std::endl;
+	for (size_t i = 0; i < serverConfig->locations.size(); i++)
+	{
+		if (req.getPath().substr(0, serverConfig->locations[i].path.size()) == serverConfig->locations[i].path)
 		{
-			location = &serverConfig->locations[i];
-			break;
+			if (serverConfig->locations[i].path.size() > longestMatch) {
+				location = &serverConfig->locations[i];
+				longestMatch = serverConfig->locations[i].path.size();
+			}
 		}
 	}
 	if (!location)
@@ -136,24 +149,30 @@ void	server::handleClient(int clientSocket)
 	}
 	else
 	{
-
 		if (req.getMethod() == "GET")
 		{
-			std::string	path_cgi =  "." + req.getPath();
-			if (path_cgi == location->cgi_pass)
-			{
-				std::string cgiOutput = CGI.executeCgi(location->cgi_pass, "");
-				response.setStatus(200);
-				response.setBody(cgiOutput);
-			}
-			else
+			if (req.getMethod() == "GET")
 			{
 				std::string filePath = "." + req.getPath();
+				if (!location->cgi_pass.empty() && req.getPath().find(location->path) == 0) {
+					std::string cgiOutput = CGI.executeCgi(location->cgi_pass, "");
+					response.setStatus(200);
+					response.setBody(cgiOutput);
+				}
+				else if (filePath == "./")
+				{
+					filePath += location->index;
+					response.setBodyFromFile(filePath);
+					if (response.getStatus() == 404)
+						response.setBody("404 Not Found");
+				}
+				else {
 					response.setBodyFromFile(filePath);
 					if (response.getStatus() == 404)
 						response.setBody("404 Not Found");
 					else
 						response.setStatus(200);
+				}
 			}
 		}
 		else
@@ -162,8 +181,18 @@ void	server::handleClient(int clientSocket)
 			response.setBody("405 Method Not Allowed");
 		}
 	}
-	std::string contentType = getContentType(req.getPath());
-	response.setHeader("Content-Type", contentType);
+	std::cout << "=----=-=-==-=>>>>" << location->index <<std::endl;
+	if (req.getPath() == "/" && location->path == "/")
+	{
+		std::string contentType = getContentType(location->index);
+		response.setHeader("Content-Type", contentType);
+	}
+	else
+	{
+		std::string contentType = getContentType(req.getPath());
+		response.setHeader("Content-Type", contentType);	
+	}
+		
 
 	std::string responseStr = response.toString();
 	std::cout << responseStr << std::endl;

@@ -6,13 +6,13 @@
 #    By: mokariou <mokariou@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/02/22 14:51:14 by mokariou          #+#    #+#              #
-#    Updated: 2025/02/25 13:13:24 by mokariou         ###   ########.fr        #
+#    Updated: 2025/02/25 18:53:30 by mokariou         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME =  webserv
 CC = c++
-GFLAGS = -Wall -Wextra -Werror -std=c++98 -g3 -ggdb -fsanitize=address
+GFLAGS = -Wall -Wextra -Werror -std=c++98 -g3 -fsanitize=address
 
 OBJ_DIR = obj/
 CFG_DER = Config/
