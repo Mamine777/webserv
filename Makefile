@@ -6,16 +6,18 @@
 #    By: mokariou <mokariou@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/02/22 14:51:14 by mokariou          #+#    #+#              #
-#    Updated: 2025/02/23 18:41:35 by mokariou         ###   ########.fr        #
+#    Updated: 2025/02/25 13:13:24 by mokariou         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME =  webserv
 CC = c++
-GFLAGS = -Wall -Wextra -Werror -std=c++98 #-pedantic -fsanitize=address
+GFLAGS = -Wall -Wextra -Werror -std=c++98 -g3 -ggdb -fsanitize=address
 
 OBJ_DIR = obj/
-SRC = ConfigParse.cpp main.cpp server.cpp Request.cpp Response.cpp utils_resp.cpp cgi.cpp
+CFG_DER = Config/
+SRC =	ConfigParse.cpp main.cpp server.cpp Request.cpp Response.cpp cgi.cpp \
+		utils_resp.cpp $(CFG_DER)Config.cpp $(CFG_DER)ParseConfig.cpp
 
 SRCS = $(SRC)
 OBJ = $(patsubst %.c, $(OBJ_DIR)%.o, $(SRCS))

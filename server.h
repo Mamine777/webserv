@@ -6,7 +6,7 @@
 /*   By: mokariou <mokariou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/22 14:53:36 by mokariou          #+#    #+#             */
-/*   Updated: 2025/02/24 18:58:06 by mokariou         ###   ########.fr       */
+/*   Updated: 2025/02/25 13:09:23 by mokariou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,54 +32,57 @@
 #include "Request.h"
 #include <fstream>
 #include <algorithm>
+#include "Config/ParseConfig.hpp"
+#include "Config/Config.hpp"
 
 
 
+// struct Route {
+// 	std::string path;
+// 	std::string root;
+// 	bool directory_listing;
+// 	std::string default_file;
+// 	std::vector<std::string> allowed_methods;
+// };
 
-struct Route {
-	std::string path;
-	std::string root;
-	bool directory_listing;
-	std::string default_file;
-	std::vector<std::string> allowed_methods;
-};
+// struct ServerConfig {
+// 	std::vector<int> ports;
+// 	std::string host;
+// 	std::string CGI_file;
+// 	std::vector<Route> routes;
+// 	std::map<int, std::string> error_pages;
+// 	size_t client_body_size_limit;
+// };
 
-struct ServerConfig {
-	std::vector<int> ports;
-	std::string host;
-	std::string CGI_file;
-	std::vector<Route> routes;
-	std::map<int, std::string> error_pages;
-	size_t client_body_size_limit;
-};
+// class ConfigParser {
+// 	private:
+// 		std::string _configFile;
+// 		ServerConfig _config;
 
-class ConfigParser {
-	private:
-		std::string _configFile;
-		ServerConfig _config;
+// 		void parseConfig();
 
-		void parseConfig();
-
-	public:
-		ConfigParser(const std::string &configFile);
-		ServerConfig getConfig() const;
-};
+// 	public:
+// 		ConfigParser(const std::string &configFile);
+// 		ServerConfig getConfig() const;
+// };
 
 
 class server
 {
 	private:
-		ServerConfig _config;
+		Config	_config;
+		ParseConfig	configParse;
 		std::string _configFile;
 		std::vector<int> _serverSockets;
 		std::vector<int>    sockets;
 		std::vector<struct pollfd> _pollfds;
+		std::map<int, ServerConfig*> _serverConfigs;
 	
 		void setupServer();
 		void acceptConnection();
 		void handleClient(int clientSocket);
 	public:
-		server(const std::string &configFile);
+		server	(Config &config, ParseConfig &parser);
 		~server();
 		std::string getContentType(const std::string &filePath);
 

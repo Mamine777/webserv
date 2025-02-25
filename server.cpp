@@ -6,7 +6,7 @@
 /*   By: mokariou <mokariou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 18:55:28 by mokariou          #+#    #+#             */
-/*   Updated: 2025/02/24 19:51:05 by mokariou         ###   ########.fr       */
+/*   Updated: 2025/02/25 13:19:02 by mokariou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,18 +15,16 @@
 #include "Response.h"
 #include "cgi.h"
 
-server::server(const std::string &configFile) : _configFile(configFile){
-	ConfigParser parser(configFile);
-	_config = parser.getConfig();
-	setupServer();
+server::server(Config &config, ParseConfig &parser) : _config(config), configParse(parser) {
+    setupServer();
 }
 
 server::~server() {}
 
 void server::setupServer(){
 	int port;
-	for (size_t i = 0; i < _config.ports.size(); i++) {
-		port = _config.ports[i];
+	for (size_t i = 0; i < _config.servers.size(); i++) {
+		port = _config.servers[i].port;
 		int servSocket = socket(AF_INET, SOCK_STREAM, 0);
 		if (servSocket == -1)
 			throw std::runtime_error("Failed to create socket");
@@ -109,20 +107,42 @@ void	server::handleClient(int clientSocket)
 	std::string request(buffer, bytesRead);
 	//std::cout << request << std::endl;
 	req.parse(request);
-	
-	//std::cout << req.getMethod() << std::endl;
-	if (req.getMethod() != "GET" && req.getMethod() != "DELETE" && req.getMethod() != "POST" && req.getMethod() != "PUT")
+	ServerConfig *serverConfig = NULL;
+
+	for (size_t i = 0; i <_serverSockets.size(); i++)
 	{
-		response.setStatus(405);
-		response.setBody("405 Method Not Allowed");
+		if (std::find(_serverSockets.begin(), _serverSockets.end(), clientSocket) != _serverSockets.end())
+		{
+			serverConfig = _serverConfigs[clientSocket];	
+			break;
+    	}
+	}
+	if (!serverConfig){response.setStatus(505), response.setBody("500 Internal Server Error");}
+
+	LocConfig *location = NULL;
+	std::cout << "==========================================>"<< serverConfig->locations.size() << std::endl;
+	exit (1);
+	for (size_t i = 0; i < serverConfig->locations.size(); i++) {
+		if (req.getPath().find(serverConfig->locations[i].path) == 0)
+		{
+			location = &serverConfig->locations[i];
+			break;
+		}
+	}
+	if (!location)
+	{
+		response.setStatus(404);
+		response.setBody("404 Not Found");
 	}
 	else
 	{
-		if (req.getMethod() == "GET"){
+
+		if (req.getMethod() == "GET")
+		{
 			std::string	path_cgi =  "." + req.getPath();
-			if (path_cgi == _config.CGI_file)
+			if (path_cgi == location->cgi_pass)
 			{
-				std::string cgiOutput = CGI.executeCgi(_config.CGI_file, "");
+				std::string cgiOutput = CGI.executeCgi(location->cgi_pass, "");
 				response.setStatus(200);
 				response.setBody(cgiOutput);
 			}
@@ -135,6 +155,11 @@ void	server::handleClient(int clientSocket)
 					else
 						response.setStatus(200);
 			}
+		}
+		else
+		{
+			response.setStatus(405);
+			response.setBody("405 Method Not Allowed");
 		}
 	}
 	std::string contentType = getContentType(req.getPath());
