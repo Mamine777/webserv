@@ -4,12 +4,13 @@ INC_PATH = includes/
 OUT_PATH = bin/
 
 SRC_FILES = Header.cpp Http.cpp MessageException.cpp Request.cpp Response.cpp Server.cpp StaticHandler.cpp test.cpp \
-			AutoIndexHandler.cpp
+			AutoIndexHandler.cpp Config/Config.cpp Config/ParseConfig.cpp
 
 SRC = $(addprefix ${SRC_PATH}, ${SRC_FILES})
 OBJ = $(patsubst $(SRC_PATH)%.cpp, $(OBJ_PATH)%.o, ${SRC})
 FINAL = bin/webserv
 
+OBJ_DIRS := $(sort $(dir ${OBJ}))  # Extract unique directories
 FLAGS = -Wall -Wextra -Werror -std=c++98
 
 all: ${FINAL}
@@ -17,11 +18,12 @@ all: ${FINAL}
 ${FINAL}: ${OBJ} | ${OUT_PATH}
 	c++ ${FLAGS} -I ${INC_PATH} -o $@ $^
 
-${OBJ_PATH}%.o: ${SRC_PATH}%.cpp | ${OBJ_PATH}
+${OBJ_PATH}%.o: ${SRC_PATH}%.cpp | $(OBJ_DIRS)
 	c++ ${FLAGS} -I ${INC_PATH} -c $< -o $@
 
-${OBJ_PATH}:
-	mkdir -p ${OBJ_PATH}
+$(OBJ_DIRS):
+
+	mkdir -p $@
 
 ${OUT_PATH}:
 	mkdir -p ${OUT_PATH}
