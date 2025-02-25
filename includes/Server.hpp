@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
+/*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 16:54:44 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/25 14:15:38 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/25 23:12:02 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include "Response.hpp"
 #include "StaticHandler.hpp"
 #include "AutoIndexHandler.hpp"
+#include "Config/Config.hpp"
 
 class Server
 {
@@ -29,9 +30,11 @@ private:
 	std::map	<std::string, void(*)(Request&, Response&)>postMap;
 	std::vector <StaticHandler>statics;
 	std::vector <AutoIndexHandler>autoindexs;
+	std::vector <std::string>locations;
+	ServerConfig	&config;
 
 public:
-	Server();
+	Server(ServerConfig &config);
 	~Server();
 
 	void	addPort(uint16_t port);
@@ -43,4 +46,6 @@ public:
 
 	void	serveStatic(std::string urlPath, std::string rootPath, std::string defhtml);
 	void	serveAutoIndex(std::string urlPath, std::string rootPath);
+
+	ServerConfig	&getConfig();
 };

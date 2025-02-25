@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Header.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
+/*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 12:48:43 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/25 15:41:00 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/26 00:11:04 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,7 +92,7 @@ void	normalizePath(std::string &path) {
 		else
 			toggle = false;
 	}
-	if (*(path.end() - 1) == '/')
+	if (*(path.end() - 1) == '/' && path != "/")
 		path = path.substr(0, path.length() - 1);
 }
 

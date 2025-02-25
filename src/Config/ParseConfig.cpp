@@ -44,6 +44,7 @@ void ParseConfig::parse() {
             if (key == "listen") {
                 iss >> current_server.port;
             } else if (key == "host") {
+                //TODO: Not needed i do believe
                 iss >> current_server.host;
                 if (!current_server.host.empty() && current_server.host[current_server.host.length() - 1] == ';') 
                     current_server.host.erase(current_server.host.length() - 1);
@@ -58,7 +59,8 @@ void ParseConfig::parse() {
                 if (!path.empty() && path[path.length() - 1] == ';') 
                     path.erase(path.length() - 1);
                 current_server.error_pages[code] = path;
-            } else if (key == "client_max_body_size") {
+                
+            } else if (key == "client_max_body_size") { //FIXME: Fix this not taking size unit (M = megabytes, etc...)
                 std::string size;
                 iss >> size;
                 if (!size.empty() && size[size.length() - 1] == ';') 
@@ -92,13 +94,13 @@ void ParseConfig::parse() {
                 std::string value;
                 iss >> value;
                 current_loc.directory_listing = (value == "on");
-            } else if (key == "upload_store") {
+            } else if (key == "upload_store") { //TODO: Has to be declared if post is allowed
                 iss >> current_loc.upload_store;
                 if (!current_loc.upload_store.empty() && current_loc.upload_store[current_loc.upload_store.length() - 1] == ';') 
                     current_loc.upload_store.erase(current_loc.upload_store.length() - 1);
             } else if (key == "cgi_pass") {
                 iss >> current_loc.cgi_pass;
-                std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> CGI PASS : " << current_loc.cgi_pass;
+                //std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> CGI PASS : " << current_loc.cgi_pass;
                 if (!current_loc.cgi_pass.empty() && current_loc.cgi_pass[current_loc.cgi_pass.length() - 1] == ';') 
                     current_loc.cgi_pass.erase(current_loc.cgi_pass.length() - 1);
             } else if (key == "cgi_extensions") {

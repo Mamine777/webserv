@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
+/*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 17:19:18 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/25 16:26:28 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/26 00:08:49 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,13 +65,19 @@ void Server::get(std::string path, void (*f)(Request &req, Response &res)) {
 
 void Server::serveStatic(std::string urlPath, std::string rootPath, std::string defhtml) {
 	this->statics.push_back(StaticHandler(urlPath, rootPath, defhtml));
+	this->locations.push_back(urlPath);
 }
 
 void Server::serveAutoIndex(std::string urlPath, std::string rootPath) {
 	this->autoindexs.push_back(AutoIndexHandler(urlPath, rootPath));
+	this->locations.push_back(urlPath);
 }
 
-Server::Server() {}
+ServerConfig &Server::getConfig() {
+    return this->config;
+}
+
+Server::Server(ServerConfig &config): config(config) {}
 
 Server::~Server() {}
 
