@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 13:52:59 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/24 16:50:43 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/25 15:04:11 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ int main(void) {
 
 	Server app2;
 	app2.serveStatic("/static", "./test", "index.html");
+	app2.serveAutoIndex("/index", "./testIndex");
 	app2.addPort(7070);
 	app2.addPort(7071);
 	http.addServer(&app2);

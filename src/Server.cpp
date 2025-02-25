@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 17:19:18 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/24 16:48:54 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/25 16:26:28 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,12 +38,19 @@ void Server::dispatchRequest(Request &req, Response &res) {
 				return ;
 			}
 		}
+		std::vector<AutoIndexHandler>::iterator indexit = this->autoindexs.begin();
+		for (; indexit != this->autoindexs.end(); ++ indexit) {
+			if (!req.getHeader().getRessource().compare(0, (*indexit).getUriPath().length(), (*indexit).getUriPath())) {
+				(*indexit).execute(req, res);
+				return ;
+			}
+		}
 		it = this->getMap.find(req.getHeader().getRessource());
 	}
 	if (req.getHeader().getMethod() == "POST")
 		it = this->postMap.find(req.getHeader().getRessource());
 	if (it == this->postMap.end() || it == this->getMap.end())
-		std::cout << "404 Ressource not Found" << std::endl;
+		res.status(404).sendText("404 Ressource not Found");
 	else
 		(*it).second(req, res);
 }
@@ -58,6 +65,10 @@ void Server::get(std::string path, void (*f)(Request &req, Response &res)) {
 
 void Server::serveStatic(std::string urlPath, std::string rootPath, std::string defhtml) {
 	this->statics.push_back(StaticHandler(urlPath, rootPath, defhtml));
+}
+
+void Server::serveAutoIndex(std::string urlPath, std::string rootPath) {
+	this->autoindexs.push_back(AutoIndexHandler(urlPath, rootPath));
 }
 
 Server::Server() {}

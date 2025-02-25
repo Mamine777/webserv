@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Header.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
+/*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 12:48:43 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/21 17:18:27 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/25 15:41:00 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,23 @@ std::ostream &operator<<(std::ostream &os, ReqHeader head) {
 	return (os);
 }
 
+void	normalizePath(std::string &path) {
+	bool toggle = false;
+	std::string::iterator	it = path.begin();;
+	for (; it != path.end(); ++it) {
+		if (toggle && *it == '/') {
+			it = path.erase(it);
+			--it;
+		}
+		if (*it == '/')
+			toggle = true;
+		else
+			toggle = false;
+	}
+	if (*(path.end() - 1) == '/')
+		path = path.substr(0, path.length() - 1);
+}
+
 ReqHeader::ReqHeader(std::string header) {
 	if (header.empty()) return;
 
@@ -92,6 +109,7 @@ ReqHeader::ReqHeader(std::string header) {
 	spaces[1] = buff.find(' ', spaces[0] + 1);
 	this->method = buff.substr(0, spaces[0]);
 	this->ressource = buff.substr(spaces[0] + 1, spaces[1] - spaces[0] - 1);
+	normalizePath(this->ressource);
 	this->httpVer = buff.substr(spaces[1] + 1);
 
 	while (!ss.eof()) {

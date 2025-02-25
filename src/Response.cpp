@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
+/*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 16:31:48 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/24 22:39:49 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/25 14:40:51 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -221,7 +221,8 @@ void Response::type(std::string type) {
 void Response::sendText(std::string str) {
 	std::stringstream ss;
 	ss << str.length();
-	this->head.setParam("Content-Type", "text/plain");
+	if (this->head.getField("Content-Type").empty())
+		this->head.setParam("Content-Type", "text/plain");
 	this->head.setParam("Content-Length", ss.str());
 	this->head.setParam("Connection", "close");
 	std::string ret = this->head.toString();
@@ -243,7 +244,9 @@ void Response::sendFile(std::string path) {
 	std::string filename = path;
 	if (path.find('/') != std::string::npos)
 		filename = filename.substr(path.find_last_of('/') + 1);
-	this->type(filename);
+	
+	if (this->head.getField("Content-Type").empty())
+		this->type(filename);
 	std::cout << "type = " << this->head.getField("Content-Type") << std::endl;
 	this->head.setParam("Content-Length", ss.str());
 	this->head.setParam("Connection", "close");

@@ -9,7 +9,7 @@ std::string StaticHandler::getUriPath() {
 	return this->uriPath;
 }
 
-bool	hasDirTraversal(std::string path) {
+static bool	hasDirTraversal(std::string path) {
 	size_t	first = 0;
 	for (; first < path.length();) {
 		size_t	second = path.find('/', first + 1);

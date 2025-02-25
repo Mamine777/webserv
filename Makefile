@@ -3,7 +3,8 @@ OBJ_PATH = obj/
 INC_PATH = includes/
 OUT_PATH = bin/
 
-SRC_FILES = Header.cpp Http.cpp MessageException.cpp Request.cpp Response.cpp Server.cpp StaticHandler.cpp test.cpp 
+SRC_FILES = Header.cpp Http.cpp MessageException.cpp Request.cpp Response.cpp Server.cpp StaticHandler.cpp test.cpp \
+			AutoIndexHandler.cpp
 
 SRC = $(addprefix ${SRC_PATH}, ${SRC_FILES})
 OBJ = $(patsubst $(SRC_PATH)%.cpp, $(OBJ_PATH)%.o, ${SRC})
