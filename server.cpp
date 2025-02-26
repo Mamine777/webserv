@@ -23,30 +23,45 @@ server::server(Config &config, ParseConfig &parser) : _config(config), configPar
 server::~server() {}
 
 
-void	handleMethod(LocConfig *location, Response &response, Request &req, cgi &CGI)
+void handleMethod(LocConfig *location, Response &response, Request &req, cgi &CGI)
 {
-	if (req.getMethod() == "GET")
-	{
+	if (req.getMethod() == "GET"){
 		std::string filePath = "." + req.getPath();
 		if (!location->cgi_pass.empty() && req.getPath().find(location->path) == 0) {
-			std::string cgiOutput = CGI.executeCgi(location->cgi_pass, "");
+		std::string cgiOutput = CGI.executeCgi(location->cgi_pass, "");
+		response.setStatus(200);
+		response.setBody(cgiOutput);
+		}
+		else if (filePath == "./")
+		{
+			filePath += location->index;
+			response.setBodyFromFile(filePath);
+			if (response.getStatus() == 404)
+				response.setBody("404 Not Found");
+		}
+		else {
+			response.setBodyFromFile(filePath);
+			if (response.getStatus() == 404)
+				response.setBody("404 Not Found");
+			else
+				response.setStatus(200);
+		}
+	}
+	else if (req.getMethod() == "POST") {
+	//implement Post
+	}
+	else if (req.getMethod() == "DELETE"){
+		std::cout <<"===>" << location->index << std::endl;
+		std::string filePath = "." + req.getPath();
+		if (remove(filePath.c_str()) == 0) {
 			response.setStatus(200);
-			response.setBody(cgiOutput);
-			}
-			else if (filePath == "./")
-			{
-				filePath += location->index;
-				response.setBodyFromFile(filePath);
-				if (response.getStatus() == 404)
-					response.setBody("404 Not Found");
-			}
-			else {
-				response.setBodyFromFile(filePath);
-				if (response.getStatus() == 404)
-					response.setBody("404 Not Found");
-				else
-					response.setStatus(200);
-			}
+			response.setBody("File deleted successfully");
+		}
+	}
+	else
+	{
+		response.setStatus(405);
+		response.setBody("405 Method Not Allowed");
 	}
 }
 
