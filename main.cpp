@@ -6,7 +6,7 @@
 /*   By: mokariou <mokariou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/22 14:53:15 by mokariou          #+#    #+#             */
-/*   Updated: 2025/02/25 18:58:44 by mokariou         ###   ########.fr       */
+/*   Updated: 2025/02/26 13:19:23 by mokariou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ int main(int ac, char **av)
 		Config config;
         ParseConfig parser(av[1], config);
 		parser.parse();
-		config.printConfig();
+		config.ErrorsConfig();
 		server	server(config, parser);
 		server.start();
 	} catch (const std::exception &e){

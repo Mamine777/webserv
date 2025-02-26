@@ -98,6 +98,7 @@ void ParseConfig::parse() {
                     current_loc.upload_store.erase(current_loc.upload_store.length() - 1);
             } else if (key == "cgi_pass") {
                 iss >> current_loc.cgi_pass;
+                std::cout << "=> CGI PASS : " << current_loc.cgi_pass << std::endl;
                 if (!current_loc.cgi_pass.empty() && current_loc.cgi_pass[current_loc.cgi_pass.length() - 1] == ';') 
                     current_loc.cgi_pass.erase(current_loc.cgi_pass.length() - 1);
             } else if (key == "cgi_extensions") {

@@ -6,7 +6,7 @@
 /*   By: mokariou <mokariou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 18:55:28 by mokariou          #+#    #+#             */
-/*   Updated: 2025/02/25 18:59:45 by mokariou         ###   ########.fr       */
+/*   Updated: 2025/02/26 14:05:48 by mokariou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,34 @@ server::server(Config &config, ParseConfig &parser) : _config(config), configPar
 }
 
 server::~server() {}
+
+
+void	handleMethod(LocConfig *location, Response &response, Request &req, cgi &CGI)
+{
+	if (req.getMethod() == "GET")
+	{
+		std::string filePath = "." + req.getPath();
+		if (!location->cgi_pass.empty() && req.getPath().find(location->path) == 0) {
+			std::string cgiOutput = CGI.executeCgi(location->cgi_pass, "");
+			response.setStatus(200);
+			response.setBody(cgiOutput);
+			}
+			else if (filePath == "./")
+			{
+				filePath += location->index;
+				response.setBodyFromFile(filePath);
+				if (response.getStatus() == 404)
+					response.setBody("404 Not Found");
+			}
+			else {
+				response.setBodyFromFile(filePath);
+				if (response.getStatus() == 404)
+					response.setBody("404 Not Found");
+				else
+					response.setStatus(200);
+			}
+	}
+}
 
 void server::setupServer(){
 	int port;
@@ -108,7 +136,7 @@ void	server::handleClient(int clientSocket)
 		return ;
 	}
 	std::string request(buffer, bytesRead);
-	std::cout << request << std::endl;
+	//std::cout << request << std::endl;
 	req.parse(request);
 	ServerConfig *serverConfig = NULL;
 
@@ -117,7 +145,6 @@ void	server::handleClient(int clientSocket)
 		return;
 	}
 	serverConfig = _serverConfigs[clientSocket];
-	std::cout << "Server Config: " << serverConfig->server_name << " (Port: " << serverConfig->port << ")" << std::endl;
 	for (size_t i = 0; i <_serverSockets.size(); i++)
 	{
 		if (std::find(_serverSockets.begin(), _serverSockets.end(), clientSocket) != _serverSockets.end())
@@ -131,7 +158,6 @@ void	server::handleClient(int clientSocket)
 	LocConfig *location = NULL;
 	size_t longestMatch = 0;
 
-	std::cout << "Nombre de locations dans serverConfig : " << serverConfig->locations.size() << std::endl;
 	for (size_t i = 0; i < serverConfig->locations.size(); i++)
 	{
 		if (req.getPath().substr(0, serverConfig->locations[i].path.size()) == serverConfig->locations[i].path)
@@ -149,39 +175,14 @@ void	server::handleClient(int clientSocket)
 	}
 	else
 	{
-		if (req.getMethod() == "GET")
-		{
-			if (req.getMethod() == "GET")
-			{
-				std::string filePath = "." + req.getPath();
-				if (!location->cgi_pass.empty() && req.getPath().find(location->path) == 0) {
-					std::string cgiOutput = CGI.executeCgi(location->cgi_pass, "");
-					response.setStatus(200);
-					response.setBody(cgiOutput);
-				}
-				else if (filePath == "./")
-				{
-					filePath += location->index;
-					response.setBodyFromFile(filePath);
-					if (response.getStatus() == 404)
-						response.setBody("404 Not Found");
-				}
-				else {
-					response.setBodyFromFile(filePath);
-					if (response.getStatus() == 404)
-						response.setBody("404 Not Found");
-					else
-						response.setStatus(200);
-				}
-			}
-		}
+		if (req.getMethod() == "GET" || req.getMethod() == "POST" || req.getMethod() == "DELETE")
+			handleMethod(location, response, req, CGI);
 		else
 		{
 			response.setStatus(405);
 			response.setBody("405 Method Not Allowed");
 		}
 	}
-	std::cout << "=----=-=-==-=>>>>" << location->index <<std::endl;
 	if (req.getPath() == "/" && location->path == "/")
 	{
 		std::string contentType = getContentType(location->index);
@@ -195,7 +196,7 @@ void	server::handleClient(int clientSocket)
 		
 
 	std::string responseStr = response.toString();
-	std::cout << responseStr << std::endl;
+	//std::cout << responseStr << std::endl;
 	send(clientSocket, responseStr.c_str(), responseStr.size(), 0);
 }
 

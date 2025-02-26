@@ -2,9 +2,13 @@
 #define CONFIG_HPP
 
 #include <iostream>
-#include <string>
 #include <vector>
+#include <string>
 #include <map>
+#include <stdexcept>
+#include <sstream>   
+#include <algorithm> 
+#include <unistd.h>  // Ajout pour `access()`, `F_OK`, `X_OK`
 
 struct LocConfig 
 {
@@ -34,6 +38,7 @@ struct Config
 {
     std::vector<ServerConfig> servers;
     void printConfig() const;
+    void ErrorsConfig();
 };
 
 
