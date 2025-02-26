@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 17:19:18 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/26 18:17:39 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/26 18:19:48 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ void Server::dispatchRequest(Request &req, Response &res) {
 				return ;
 			}
 			file << req.getRawBody();
-			
+			//TODO: return actual header to close connection
 			return ;
 		}
 		it = this->postMap.find(req.getHeader().getRessource());
