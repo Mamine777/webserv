@@ -69,6 +69,7 @@
 		"cinttypes": "cpp",
 		"typeindex": "cpp",
 		"variant": "cpp",
-		"semaphore": "cpp"
+		"semaphore": "cpp",
+		"*.ipp": "cpp"
 	}
 }

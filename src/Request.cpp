@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
+/*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 17:36:33 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/21 18:14:07 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/26 17:17:57 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,16 @@ Request::Request(std::string req, int clientSock): head(ReqHeader(req)), rawReq(
 		std::stringstream	ss(contLenStr);
 		ss >> contLen;
 	}
+	std::string		expect(head.getField("Expect"));
+	unsigned int	code = 0;
+	if (!expect.empty()) {
+		std::stringstream	expss(expect);
+		expss >> code;
+		std::string			tmpHeader = ResHeader::expectHeader(this->getHeader().getHttpVer(), code);
+		std::cout << tmpHeader << std::endl;
+		send(clientSock, tmpHeader.c_str(), tmpHeader.length(), 0);
+	}
+	
 
 	size_t	headerEnd = rawReq.find("\r\n\r\n") + 4;
 	size_t	bodySize = rawReq.size() - headerEnd;
@@ -44,4 +54,8 @@ Request::~Request() {
 ReqHeader &Request::getHeader()
 {
 	return (this->head);
+}
+
+std::string Request::getRawBody() {
+	return this->rawBody;
 }

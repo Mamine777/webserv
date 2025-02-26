@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
+/*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 17:19:18 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/26 00:08:49 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/26 18:17:39 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,9 +19,11 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <algorithm>
 #include <exception>
 #include <iostream>
 #include <vector>
+#include <fstream>
 
 #include "Header.hpp"
 #include "MessageException.hpp"
@@ -29,26 +31,43 @@
 
 void Server::dispatchRequest(Request &req, Response &res) {
 	std::map<std::string, void (*)(Request &, Response &)>::iterator it;
-	
+	std::string longest = this->getLongestLoc(req.getHeader().getRessource());
+	std::cout << "Longest ====>>> " << longest << std::endl;
+
 	if (req.getHeader().getMethod() == "GET") {
 		std::vector<StaticHandler>::iterator statit = this->statics.begin();
 		for (; statit != this->statics.end(); ++statit) {
-			if (!req.getHeader().getRessource().compare(0, (*statit).getUriPath().length(), (*statit).getUriPath())) {
+			if ((*statit).getUriPath() == longest) {
 				(*statit).execute(req, res);
-				return ;
+				return;
 			}
 		}
 		std::vector<AutoIndexHandler>::iterator indexit = this->autoindexs.begin();
-		for (; indexit != this->autoindexs.end(); ++ indexit) {
-			if (!req.getHeader().getRessource().compare(0, (*indexit).getUriPath().length(), (*indexit).getUriPath())) {
+		for (; indexit != this->autoindexs.end(); ++indexit) {
+			if ((*indexit).getUriPath() == longest) {
 				(*indexit).execute(req, res);
-				return ;
+				return;
 			}
 		}
 		it = this->getMap.find(req.getHeader().getRessource());
 	}
-	if (req.getHeader().getMethod() == "POST")
+	if (req.getHeader().getMethod() == "POST") {
+		std::map<std::string, std::string>::iterator	postit = this->postLocations.find(longest);
+		std::cout << "\"" << this->postLocations[longest] << "\"" << std::endl;
+		if (postit != this->postLocations.end()) {
+			std::string path = req.getHeader().getRessource().replace(0, (*postit).first.length(), (*postit).second + "/");
+			std::ofstream	file(path.c_str());
+			if (file.fail()) {
+				std::cout << strerror(errno) << std::endl;
+				res.status(500).sendText("Internal Server Error");
+				return ;
+			}
+			file << req.getRawBody();
+			
+			return ;
+		}
 		it = this->postMap.find(req.getHeader().getRessource());
+	}
 	if (it == this->postMap.end() || it == this->getMap.end())
 		res.status(404).sendText("404 Ressource not Found");
 	else
@@ -65,19 +84,38 @@ void Server::get(std::string path, void (*f)(Request &req, Response &res)) {
 
 void Server::serveStatic(std::string urlPath, std::string rootPath, std::string defhtml) {
 	this->statics.push_back(StaticHandler(urlPath, rootPath, defhtml));
-	this->locations.push_back(urlPath);
+	if (std::find(this->locations.begin(), this->locations.end(), urlPath) == this->locations.end())
+		this->locations.push_back(urlPath);
 }
 
 void Server::serveAutoIndex(std::string urlPath, std::string rootPath) {
 	this->autoindexs.push_back(AutoIndexHandler(urlPath, rootPath));
-	this->locations.push_back(urlPath);
+	if (std::find(this->locations.begin(), this->locations.end(), urlPath) == this->locations.end())
+		this->locations.push_back(urlPath);
 }
 
-ServerConfig &Server::getConfig() {
-    return this->config;
+void Server::servePost(std::string urlPath, std::string uploadPath) {
+	std::cout << "Added post for route " << urlPath << " to save at " << uploadPath << std::endl;
+	this->postLocations[urlPath] = uploadPath;
+	if (std::find(this->locations.begin(), this->locations.end(), urlPath) == this->locations.end())
+		this->locations.push_back(urlPath);
 }
 
-Server::Server(ServerConfig &config): config(config) {}
+std::string Server::getLongestLoc(std::string ressource) {
+	std::string longest = "";
+	std::vector<std::string>::iterator it = this->locations.begin();
+	for (; it != this->locations.end(); ++it) {
+		if (!ressource.compare(0, (*it).size(), (*it)) && (*it).length() > longest.length())
+			longest = (*it);
+	}
+	return (longest);
+}
+
+ServerConfig *Server::getConfig() {
+	return this->config;
+}
+
+Server::Server(ServerConfig *config) : config(config) {}
 
 Server::~Server() {}
 
@@ -98,6 +136,6 @@ void Server::addPort(uint16_t port) {
 	if (bind(serverSocket, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0) {
 		close(serverSocket);
 		throw MessageException(strerror(errno));
-	} 
+	}
 	this->serverSocks.push_back(serverSocket);
 }

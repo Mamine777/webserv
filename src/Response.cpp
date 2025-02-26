@@ -6,11 +6,12 @@
 /*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 16:31:48 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/25 14:40:51 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/26 16:36:19 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
+#include "Request.hpp"
 
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -260,7 +261,6 @@ void Response::sendFile(std::string path) {
 	char buffer[4098];
 	while (file.read(buffer, sizeof(buffer)) || file.gcount() > 0) {
 		ssize_t bytes_sent = send(this->clientSocket, buffer, file.gcount(), 0);
-		std::cout << "file.gcount() = " << file.gcount() << std::endl;
 		if (bytes_sent == -1) {
 			std::cerr << "Failed to send file" << path << std::endl;
 			file.close();

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
+/*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 16:54:44 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/25 23:12:02 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/26 17:04:11 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,10 +31,11 @@ private:
 	std::vector <StaticHandler>statics;
 	std::vector <AutoIndexHandler>autoindexs;
 	std::vector <std::string>locations;
-	ServerConfig	&config;
+	std::map	<std::string, std::string>postLocations;
+	ServerConfig	*config;
 
 public:
-	Server(ServerConfig &config);
+	Server(ServerConfig *config);
 	~Server();
 
 	void	addPort(uint16_t port);
@@ -46,6 +47,9 @@ public:
 
 	void	serveStatic(std::string urlPath, std::string rootPath, std::string defhtml);
 	void	serveAutoIndex(std::string urlPath, std::string rootPath);
+	void	servePost(std::string urlPath, std::string uploadPath);
 
-	ServerConfig	&getConfig();
+	std::string	getLongestLoc(std::string ressource);
+
+	ServerConfig	*getConfig();
 };

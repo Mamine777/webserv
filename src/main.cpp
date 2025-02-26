@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
+/*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/25 18:04:46 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/26 00:16:26 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/26 17:33:27 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,24 +18,27 @@
 #include <algorithm>
 
 int	handleServers(Config &conf, Http &serv) {
-	std::vector<ServerConfig>::iterator servIt = conf.servers.begin();
+	std::vector<ServerConfig *>::iterator servIt = conf.servers.begin();
 	for (; servIt != conf.servers.end(); ++servIt) {
 		Server *tmpserv = new Server((*servIt));
 		serv.addServer(tmpserv);
-		tmpserv->addPort(tmpserv->getConfig().port);
-		std::vector<LocConfig>::iterator	locIt = tmpserv->getConfig().locations.begin();
-		for (; locIt != tmpserv->getConfig().locations.end(); ++locIt) {
-			if (!(*locIt).cgi_extensions.empty() && !(*locIt).cgi_pass.empty()) {
-				//TODO: Handle the cgi scripts
-			} else if ((*locIt).directory_listing) {
-				tmpserv->serveAutoIndex((*locIt).path, (*locIt).root);
-			} else {
-				std::cout << "added static serving for:" << std::endl;
-				std::cout << (*locIt).path << std::endl << (*locIt).root << std::endl << (*locIt).index << std::endl;
-				tmpserv->serveStatic((*locIt).path, (*locIt).root, (*locIt).index);
+		tmpserv->addPort(tmpserv->getConfig()->port);
+		std::vector<LocConfig *>::iterator	locIt = tmpserv->getConfig()->locations.begin();
+		for (; locIt != tmpserv->getConfig()->locations.end(); ++locIt) {
+			if (std::find((*locIt)->allowed_methods.begin(), (*locIt)->allowed_methods.end(), "GET") != (*locIt)->allowed_methods.end()) {
+				if (!(*locIt)->cgi_extensions.empty() && !(*locIt)->cgi_pass.empty()) {
+					//TODO: Handle the cgi scripts
+				} else if ((*locIt)->directory_listing) {
+					std::cout << "Added autoindex for route " << (*locIt)->path << std::endl;
+					tmpserv->serveAutoIndex((*locIt)->path, (*locIt)->root);
+				} else {
+					std::cout << "Added static for route " << (*locIt)->directory_listing << std::endl;
+					tmpserv->serveStatic((*locIt)->path, (*locIt)->root, (*locIt)->index);
+				}
 			}
-			if (!(*locIt).upload_store.empty() && std::find((*locIt).allowed_methods.begin(), (*locIt).allowed_methods.end(), "POST") != (*locIt).allowed_methods.end()) {
-				//TODO: Handle post method
+			if (!(*locIt)->upload_store.empty() && std::find((*locIt)->allowed_methods.begin(), (*locIt)->allowed_methods.end(), "POST") != (*locIt)->allowed_methods.end()) {
+				std::cout << "here big fella" << std::endl;
+				tmpserv->servePost((*locIt)->path, (*locIt)->upload_store);
 			} 
 		}
 	}
@@ -53,8 +56,9 @@ int main(int argc, char **argv) {
 	(void)argv;
 	try {
 		Config		config;
-		ParseConfig	parser("./defaults/temp.config", config);
+		ParseConfig	parser(argv[1], config);
 		parser.parse();
+		config.printConfig();
 
 		Http		http;
 		handleServers(config, http);

@@ -27,12 +27,12 @@ struct ServerConfig
     std::string server_name;
     int client_max_body_size;
     std::map<int, std::string> error_pages;
-    std::vector<LocConfig> locations;
+    std::vector<LocConfig *> locations;
 };
 
 struct Config 
 {
-    std::vector<ServerConfig> servers;
+    std::vector<ServerConfig *> servers;
     void printConfig() const;
 };
 

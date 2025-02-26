@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Header.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
+/*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 12:44:24 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/25 22:58:11 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/26 16:43:53 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,8 @@ public:
 	void	setHttpVer(std::string ver);
 
 	std::string	toString();
+
+	static std::string	expectHeader(std::string httpVer, unsigned int code);
 };
 
 std::ostream	&operator<<(std::ostream &os, ReqHeader head);

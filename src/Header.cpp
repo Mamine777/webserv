@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Header.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
+/*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 12:48:43 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/26 00:11:04 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/26 16:49:53 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -320,4 +320,11 @@ std::string ResHeader::toString() {
 		buff += (*it).first + ": " + (*it).second + "\r\n";
 	buff += "\r\n";
 	return buff;
+}
+
+std::string ResHeader::expectHeader(std::string httpVer, unsigned int code) {
+	std::stringstream	ss;
+	ss << std::dec << code;
+	
+	return (httpVer + " " + ss.str() + " " + getStatMsg(code)) + "\r\n\r\n";
 }

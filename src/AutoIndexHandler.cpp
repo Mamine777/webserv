@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/25 14:36:31 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/25 16:24:28 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/26 16:14:36 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,7 @@ void AutoIndexHandler::execute(Request& req, Response& res) {
 		}
 		ret += "	</ul>\n</body>\n</html>";
 		res.type("text/html");
+		std::cout << "ran this" << std::endl;
 		res.sendText(ret);
 	}
 	res.status(500).sendText("Server encounted an error");
