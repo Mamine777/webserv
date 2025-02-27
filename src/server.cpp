@@ -66,7 +66,6 @@ void handleMethod(LocConfig *location, Response &response, Request &req, cgi &CG
 	//implement Post
 	}
 	else if (req.getMethod() == "DELETE" && findout("DELETE", location->allowed_methods)){
-		std::cout <<"===>" << location->index << std::endl;
 		std::string filePath = "." + req.getPath();
 		if (!request_checking(req.getPath())){
 			response.setStatus(403);
