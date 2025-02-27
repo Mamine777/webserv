@@ -30,11 +30,12 @@ void Config::printConfig() const
                     std::cout << ", ";
             }
             std::cout << std::endl;
-
+            std::cout << "    - Directory listening : " << it->directory_listing << std::endl;
             std::cout << "    - Upload Store : " << it->upload_store << std::endl;
             std::cout << "    - CGI Pass : " << it->cgi_pass << std::endl;
 
-            std::cout << "    - CGI Extensions : ";
+            std::cout << "    - CGI Extensions : " << std::endl;
+            std::cout << "    - Redirect url : " << it->redirect_url << std::endl;
             for (size_t j = 0; j < it->cgi_extensions.size(); j++)
             {
                 std::cout << it->cgi_extensions[j];
@@ -117,6 +118,13 @@ void Config::ErrorsConfig()
                 if (method != "GET" && method != "POST" && method != "DELETE")
                 {
                     throw std::runtime_error("Error: Invalid http method : " + method + " in location " + loc.path);
+                }
+                if(method == "POST")
+                {
+                    if(loc.upload_store.empty())
+                    {
+                        throw std::runtime_error("Error : Method post but no upload store defined in config file" + loc.upload_store);
+                    }
                 }
             }
 

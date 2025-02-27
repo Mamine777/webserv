@@ -1,9 +1,34 @@
 #include "ParseConfig.hpp"
-#include <cstdlib> // Pour std::atoi()
+
 
 ParseConfig::ParseConfig(std::string filename, Config &config) : _filename(filename), config(config) {}
 
-ParseConfig::~ParseConfig() {}
+ParseConfig::~ParseConfig() {};
+
+size_t ParseConfig::parseSize(const std::string &sizeStr)
+{
+     if (sizeStr.empty()) return 0;
+
+    size_t num = 0;
+    size_t i = 0;
+    
+    while (i < sizeStr.length() && std::isdigit(sizeStr[i])) {
+        num = num * 10 + (sizeStr[i] - '0');
+        i++;
+    }
+
+    if (i < sizeStr.length()) {
+        char unit = std::toupper(sizeStr[i]);
+        switch (unit) {
+            case 'K': return num * 1024;          // Kilo (KB)
+            case 'M': return num * 1024 * 1024;   // Mega (MB)
+            case 'G': return num * 1024 * 1024 * 1024; // Giga (GB)
+            default: throw std::runtime_error("Invalid unit for client_max_body_size");
+        }
+    }
+
+    return num;
+};
 
 void ParseConfig::parse() {
     std::ifstream file(_filename.c_str());
@@ -63,7 +88,7 @@ void ParseConfig::parse() {
                 iss >> size;
                 if (!size.empty() && size[size.length() - 1] == ';') 
                     size.erase(size.length() - 1);
-                current_server.client_max_body_size = std::atoi(size.c_str());
+                current_server.client_max_body_size = parseSize(size.c_str());
             }
         }
         else if (in_loc) {
@@ -91,7 +116,10 @@ void ParseConfig::parse() {
             } else if (key == "directory_listing") {
                 std::string value;
                 iss >> value;
-                current_loc.directory_listing = (value == "on");
+                if(value == "on" || value == "on;")
+                    current_loc.directory_listing = true;
+                else
+                    current_loc.directory_listing = false;
             } else if (key == "upload_store") {
                 iss >> current_loc.upload_store;
                 if (!current_loc.upload_store.empty() && current_loc.upload_store[current_loc.upload_store.length() - 1] == ';') 
@@ -125,7 +153,8 @@ void ParseConfig::parse() {
         }
     }
 
-    if (!current_server.host.empty()) {
+
+        current_server.locations.push_back(current_loc);
+
         config.servers.push_back(current_server);
-    }
 }

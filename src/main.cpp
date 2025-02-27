@@ -21,6 +21,7 @@ int main(int ac, char **av)
         ParseConfig parser(av[1], config);
 		parser.parse();
 		config.ErrorsConfig();
+		config.printConfig();
 		server	server(config, parser);
 		server.start();
 	} catch (const std::exception &e){
