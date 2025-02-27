@@ -10,8 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Response.h"
-#include "server.h"
+#include "../inc/server.h"
 Response::Response() : _version("HTTP/1.1"), _statusCode(200), _statusMessage("OK")
 {}
 

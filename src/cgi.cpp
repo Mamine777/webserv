@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "cgi.h"
-#include "server.h"
+#include "../inc/cgi.h"
+#include "../inc/server.h"
 
 
 bool    cgi::isCGIrequest(const std::string& path)

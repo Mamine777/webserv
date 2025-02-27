@@ -10,8 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "server.h"
-#include "Response.h"
+#include "../inc/server.h"
 
 std::string server::getContentType(const std::string &filePath) {
     size_t dotPos = filePath.find_last_of('.');

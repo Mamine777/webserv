@@ -10,30 +10,31 @@
 #                                                                              #
 # **************************************************************************** #
 
-NAME =  webserv
+NAME = webserv
 CC = c++
 GFLAGS = -Wall -Wextra -Werror -std=c++98 -g3 -fsanitize=address
 
 OBJ_DIR = obj/
-CFG_DER = Config/
-SRC =	ConfigParse.cpp main.cpp server.cpp Request.cpp Response.cpp cgi.cpp \
-		utils_resp.cpp $(CFG_DER)Config.cpp $(CFG_DER)ParseConfig.cpp
+CFG_DIR = src/Config/
 
-SRCS = $(SRC)
-OBJ = $(patsubst %.c, $(OBJ_DIR)%.o, $(SRCS))
+SRC =	src/main.cpp src/server.cpp src/Request.cpp src/Response.cpp src/cgi.cpp \
+		src/utils_resp.cpp $(CFG_DIR)Config.cpp $(CFG_DIR)ParseConfig.cpp
+
+OBJ = $(patsubst src/%.cpp, $(OBJ_DIR)%.o, $(SRC))
 
 all: $(NAME)
 
 $(NAME): $(OBJ)
-			$(CC) $(GFLAGS) $(OBJ) -o $(NAME)
+	$(CC) $(GFLAGS) $(OBJ) -o $(NAME)
 
+$(OBJ_DIR)%.o: src/%.cpp
+	@mkdir -p $(dir $@)
+	$(CC) $(GFLAGS) -c $< -o $@
 
-$(OBJ_DIR)%.o: %.c
-			@mkdir -p $(OBJ_DIR)
-			@mkdir -p $(dir $@)
-			$(CC) $(GFLAGS) -c $< -o $@
 clean:
-		rm -rf $(OBJ_DIR)
+	rm -rf $(OBJ_DIR)
+
 fclean: clean
-		rm -f $(NAME)
+	rm -f $(NAME)
+
 re: fclean all

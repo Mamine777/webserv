@@ -10,11 +10,10 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "server.h"
-#include "ConfigParse.h"
-#include "Response.h"
+
+#include "../inc/Response.h"
 #include <string>
-#include "cgi.h"
+#include "../inc/cgi.h"
 
 server::server(Config &config, ParseConfig &parser) : _config(config), configParse(parser) {
     setupServer();
@@ -22,10 +21,26 @@ server::server(Config &config, ParseConfig &parser) : _config(config), configPar
 
 server::~server() {}
 
+bool	findout(std::string Method, std::vector<std::string> allowed_method){
+
+	for (size_t i = 0 ; i < allowed_method.size(); i++)
+		if (Method == allowed_method[i])
+			return true;
+	return false;
+
+}
+
+bool	request_checking(std::string path)
+{
+	if (path.find("src") != std::string::npos || path.find("inc") != std::string::npos ||
+		path.find("Makefile") != std::string::npos)
+		return false;
+	return true;
+}
 
 void handleMethod(LocConfig *location, Response &response, Request &req, cgi &CGI)
 {
-	if (req.getMethod() == "GET"){
+	if (req.getMethod() == "GET" && findout("GET", location->allowed_methods)){
 		std::string filePath = "." + req.getPath();
 		if (!location->cgi_pass.empty() && req.getPath().find(location->path) == 0) {
 		std::string cgiOutput = CGI.executeCgi(location->cgi_pass, "");
@@ -47,15 +62,20 @@ void handleMethod(LocConfig *location, Response &response, Request &req, cgi &CG
 				response.setStatus(200);
 		}
 	}
-	else if (req.getMethod() == "POST") {
+	else if (req.getMethod() == "POST" && findout("POST", location->allowed_methods)) {
 	//implement Post
 	}
-	else if (req.getMethod() == "DELETE"){
+	else if (req.getMethod() == "DELETE" && findout("DELETE", location->allowed_methods)){
 		std::cout <<"===>" << location->index << std::endl;
 		std::string filePath = "." + req.getPath();
-		if (remove(filePath.c_str()) == 0) {
+		if (!request_checking(req.getPath())){
+			response.setStatus(403);
+			response.setBody("Forbidden");
+		}
+		else{
+			if (remove(filePath.c_str()) == 0) {
 			response.setStatus(200);
-			response.setBody("File deleted successfully");
+			response.setBody("File deleted successfully");}
 		}
 	}
 	else

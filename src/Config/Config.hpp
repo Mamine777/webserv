@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <sstream>   
 #include <algorithm> 
-#include <unistd.h>  // Ajout pour `access()`, `F_OK`, `X_OK`
+#include <unistd.h>
 
 struct LocConfig 
 {

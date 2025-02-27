@@ -28,13 +28,11 @@
 #include <vector>
 #include <poll.h>
 #include <sstream>
-#include "ConfigParse.h"
 #include "Request.h"
 #include <fstream>
 #include <algorithm>
-#include "Config/ParseConfig.hpp"
-#include "Config/Config.hpp"
-#include "ConfigParse.h"
+#include "../src/Config/ParseConfig.hpp"
+#include "../src/Config/Config.hpp"
 #include "Response.h"
 #include <string>
 #include "cgi.h"
@@ -62,11 +60,9 @@ class server
 		server	(Config &config, ParseConfig &parser);
 		~server();
 		std::string getContentType(const std::string &filePath);
-
 		void start();
 };
 void	handleMethod(LocConfig *location, Response &response, Request &req, cgi &CGI);
-
 
 
 

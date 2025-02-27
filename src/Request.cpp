@@ -10,9 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "server.h"
-#include "Request.h"
-
+#include "../inc/server.h"
 
 std::string Request::getMethod()const {return this->_method;}
 
