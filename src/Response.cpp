@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 16:31:48 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/26 16:36:19 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/27 11:55:14 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,23 @@ void Response::attachment(std::string path) {
 
 void Response::cookie(std::string name, std::string value) {
 	this->head.setCookie(name, value);
+}
+
+void Response::redirect(std::string path, unsigned int status) {
+	this->head.setParam("Connection", "close");
+	this->head.setParam("Location", path);
+	this->status(status);
+	std::string header = this->head.toString();
+	if (::send(this->clientSocket, header.c_str(), header.length(), 0) == -1) {
+		std::cerr << "Error sending redirection header" << std::endl;
+	}
+}
+
+void Response::send() {
+	std::string	header = this->head.toString();
+	if (::send(this->clientSocket, header.c_str(), header.length(), 0) == -1) {
+		std::cerr << "Error sending header" << std::endl;
+	}
 }
 
 Response &Response::status(unsigned int status) {
@@ -228,7 +245,7 @@ void Response::sendText(std::string str) {
 	this->head.setParam("Connection", "close");
 	std::string ret = this->head.toString();
 	ret += str;
-	send(this->clientSocket, ret.c_str(), ret.size(), 0);
+	::send(this->clientSocket, ret.c_str(), ret.size(), 0);
 }
 
 void Response::sendFile(std::string path) {
@@ -252,7 +269,7 @@ void Response::sendFile(std::string path) {
 	this->head.setParam("Content-Length", ss.str());
 	this->head.setParam("Connection", "close");
 	std::string ret = this->head.toString();
-	if (send(this->clientSocket, ret.c_str(), ret.size(), 0) == -1) {
+	if (::send(this->clientSocket, ret.c_str(), ret.size(), 0) == -1) {
 		std::cerr << "Failed to send header of file " << path << std::endl;
 		file.close();
 		return;
@@ -260,7 +277,7 @@ void Response::sendFile(std::string path) {
 
 	char buffer[4098];
 	while (file.read(buffer, sizeof(buffer)) || file.gcount() > 0) {
-		ssize_t bytes_sent = send(this->clientSocket, buffer, file.gcount(), 0);
+		ssize_t bytes_sent = ::send(this->clientSocket, buffer, file.gcount(), 0);
 		if (bytes_sent == -1) {
 			std::cerr << "Failed to send file" << path << std::endl;
 			file.close();

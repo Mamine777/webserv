@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 17:19:18 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/26 18:19:48 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/27 16:52:56 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,6 @@ void Server::dispatchRequest(Request &req, Response &res) {
 				return;
 			}
 		}
-		it = this->getMap.find(req.getHeader().getRessource());
 	}
 	if (req.getHeader().getMethod() == "POST") {
 		std::map<std::string, std::string>::iterator	postit = this->postLocations.find(longest);
@@ -63,15 +62,11 @@ void Server::dispatchRequest(Request &req, Response &res) {
 				return ;
 			}
 			file << req.getRawBody();
-			//TODO: return actual header to close connection
+			res.status(200).send();
 			return ;
 		}
-		it = this->postMap.find(req.getHeader().getRessource());
 	}
-	if (it == this->postMap.end() || it == this->getMap.end())
 		res.status(404).sendText("404 Ressource not Found");
-	else
-		(*it).second(req, res);
 }
 
 std::vector<int> &Server::getServerSocks() {

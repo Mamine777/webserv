@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 17:36:33 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/26 17:17:57 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/27 14:21:28 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,10 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
-Request::Request(std::string req, int clientSock): head(ReqHeader(req)), rawReq(req) {
+Request::Request(): finishHead(false), finishBody(false) {
+}
+
+Request::Request(std::string req, int clientSock): head(ReqHeader(req)), rawReq(req), finishHead(false), finishBody(false) {
 	std::string 	contLenStr = head.getField("Content-Length");
 	unsigned int	contLen = 0;
 	if (!contLenStr.empty()) {
@@ -56,6 +59,34 @@ ReqHeader &Request::getHeader()
 	return (this->head);
 }
 
-std::string Request::getRawBody() {
+std::string &Request::getRawBody() {
 	return this->rawBody;
+}
+
+std::string &Request::getRawReq() {
+	return this->rawReq;
+}
+
+bool Request::getFinishHead() const {
+	return this->finishHead;
+}
+
+bool Request::getFinishBody() const {
+	return this->finishBody;
+}
+
+void Request::setFinishHead(bool v) {
+	this->finishHead = v;
+}
+
+void Request::setFinishBody(bool v) {
+	this->finishBody = v;
+}
+
+void Request::setBodySize(size_t size) {
+	this->bodySize = size;
+}
+
+size_t Request::getBodySize() const {
+	return this->bodySize;
 }

@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 12:44:24 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/26 16:43:53 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/27 13:50:40 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,9 +42,11 @@ private:
 	std::string	method;
 	std::string	ressource;
 public:
+	ReqHeader();
 	ReqHeader(std::string header);
 	~ReqHeader();
 
+	void	parseHead(std::string str);
 	void	parseCookies();
 	
 	std::string	getMethod();

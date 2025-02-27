@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 12:48:43 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/26 16:49:53 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/27 13:51:18 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,43 @@ void	normalizePath(std::string &path) {
 		path = path.substr(0, path.length() - 1);
 }
 
+ReqHeader::ReqHeader() {
+}
+
 ReqHeader::ReqHeader(std::string header) {
+	this->parseHead(header);
+	/* if (header.empty()) return;
+
+	std::istringstream ss(header);
+	std::string buff;
+
+	std::getline(ss, buff);
+	if (!buff.empty() && *(buff.end() - 1) == '\r') buff.erase(buff.end() - 1);
+	size_t spaces[2];
+	spaces[0] = buff.find(' ');
+	spaces[1] = buff.find(' ', spaces[0] + 1);
+	this->method = buff.substr(0, spaces[0]);
+	this->ressource = buff.substr(spaces[0] + 1, spaces[1] - spaces[0] - 1);
+	normalizePath(this->ressource);
+	this->httpVer = buff.substr(spaces[1] + 1);
+
+	while (!ss.eof()) {
+		std::getline(ss, buff);
+		if (buff == "\r" || buff.empty()) break;
+		if (!buff.empty() && *(buff.end() - 1) == '\r')
+			buff.erase(buff.end() - 1);
+		std::string key = buff.substr(0, buff.find(": "));
+		std::string val = buff.substr(buff.find(": ") + 2);
+		this->parameters.insert(std::pair<std::string, std::string>(key, val));
+	}
+
+	if (!this->getField("Cookie").empty())
+		this->parseCookies(); */
+}
+
+ReqHeader::~ReqHeader() {}
+
+void ReqHeader::parseHead(std::string header) {
 	if (header.empty()) return;
 
 	std::istringstream ss(header);
@@ -125,8 +161,6 @@ ReqHeader::ReqHeader(std::string header) {
 	if (!this->getField("Cookie").empty())
 		this->parseCookies();
 }
-
-ReqHeader::~ReqHeader() {}
 
 void ReqHeader::parseCookies() {
 	std::string	cookieHead = this->getField("Cookie");

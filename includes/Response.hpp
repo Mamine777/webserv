@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 15:41:15 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/19 16:45:03 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/27 11:53:53 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,8 @@ public:
 	void		attachment();
 	void		attachment(std::string path);
 	void		cookie(std::string name, std::string value);
+	void		redirect(std::string path, unsigned int status = 301);
+	void		send();
 	Response	&status(unsigned int status);
 	void		type(std::string type);
 	
