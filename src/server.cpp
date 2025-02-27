@@ -123,28 +123,28 @@ void server::setupServer(){
 
 
 void server::acceptConnection() {
-	for (size_t i = 0; i < _pollfds.size(); i++)
-	{
-		if (_pollfds[i].revents & POLLIN)
-		{
-			struct sockaddr_in clientAddr;
-			socklen_t clientAddrLen = sizeof(clientAddr);
-			int clientSocket = accept(_pollfds[i].fd, (struct sockaddr *)&clientAddr, &clientAddrLen);
-			if (clientSocket < 0) {
-				std::cerr << "Failed to accept connection on socket " << _pollfds[i].fd << std::endl;
-				continue;
-			}
+    for (size_t i = 0; i < _pollfds.size(); i++) {
+        if (_pollfds[i].revents & POLLIN) {
+            struct sockaddr_in clientAddr;
+            socklen_t clientAddrLen = sizeof(clientAddr);
+            int clientSocket = accept(_pollfds[i].fd, (struct sockaddr *)&clientAddr, &clientAddrLen);
+            if (clientSocket < 0) {
+                std::cerr << "Failed to accept connection on socket " << _pollfds[i].fd << std::endl;
+                continue;
+            }
 
-			struct pollfd clientPollfd;
-			clientPollfd.fd = clientSocket;
-			clientPollfd.events = POLLIN;
-			_pollfds.push_back(clientPollfd);
+            fcntl(clientSocket, F_SETFL, O_NONBLOCK);
 
-	 		ServerConfig *serverConfig = &_config.servers[i];
-            _serverConfigs[clientSocket] = serverConfig;
-			std::cout << "New connection accepted on socket " << _pollfds[i].fd << std::endl;
-		}
-	}
+            struct pollfd clientPollfd;
+            clientPollfd.fd = clientSocket;
+            clientPollfd.events = POLLIN | POLLOUT;
+            _pollfds.push_back(clientPollfd);
+
+            _serverConfigs[clientSocket] = &_config.servers[i];
+
+            std::cout << "New connection accepted on socket " << _pollfds[i].fd << std::endl;
+        }
+    }
 }
 
 void	server::handleClient(int clientSocket)
