@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
+/*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 17:19:18 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/27 16:52:56 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/28 13:49:19 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,10 @@ void Server::dispatchRequest(Request &req, Response &res) {
 				return;
 			}
 		}
+		if (this->redirects.find(longest) != this->redirects.end()) {
+			res.redirect((*this->redirects.find(longest)).second);
+			return ;
+		}
 	}
 	if (req.getHeader().getMethod() == "POST") {
 		std::map<std::string, std::string>::iterator	postit = this->postLocations.find(longest);
@@ -62,7 +66,10 @@ void Server::dispatchRequest(Request &req, Response &res) {
 				return ;
 			}
 			file << req.getRawBody();
-			res.status(200).send();
+			if (this->redirects.find(longest) != this->redirects.end())
+				res.redirect((*this->redirects.find(longest)).second);
+			else 
+				res.status(200).send();
 			return ;
 		}
 	}
@@ -90,10 +97,15 @@ void Server::serveAutoIndex(std::string urlPath, std::string rootPath) {
 }
 
 void Server::servePost(std::string urlPath, std::string uploadPath) {
-	std::cout << "Added post for route " << urlPath << " to save at " << uploadPath << std::endl;
 	this->postLocations[urlPath] = uploadPath;
 	if (std::find(this->locations.begin(), this->locations.end(), urlPath) == this->locations.end())
 		this->locations.push_back(urlPath);
+}
+
+void Server::redirect(std::string uriPath, std::string redirectUrl) {
+	this->redirects[uriPath] = redirectUrl;
+	if (std::find(this->locations.begin(), this->locations.end(), uriPath) == this->locations.end())
+		this->locations.push_back(uriPath);
 }
 
 std::string Server::getLongestLoc(std::string ressource) {

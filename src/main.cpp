@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fghysbre <fghysbre@stduent.s19.be>         +#+  +:+       +#+        */
+/*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/25 18:04:46 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/26 17:33:27 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/28 13:43:56 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,10 @@ int	handleServers(Config &conf, Http &serv) {
 			if (!(*locIt)->upload_store.empty() && std::find((*locIt)->allowed_methods.begin(), (*locIt)->allowed_methods.end(), "POST") != (*locIt)->allowed_methods.end()) {
 				std::cout << "here big fella" << std::endl;
 				tmpserv->servePost((*locIt)->path, (*locIt)->upload_store);
-			} 
+			}
+			if (!(*locIt)->redirect_url.empty()) {
+				tmpserv->redirect((*locIt)->path, (*locIt)->redirect_url);
+			}
 		}
 	}
 	return (1);
