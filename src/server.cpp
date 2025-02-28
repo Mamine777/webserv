@@ -6,7 +6,7 @@
 /*   By: mokariou <mokariou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 18:55:28 by mokariou          #+#    #+#             */
-/*   Updated: 2025/02/26 14:05:48 by mokariou         ###   ########.fr       */
+/*   Updated: 2025/02/28 15:05:24 by mokariou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,13 @@ bool	request_checking(std::string path)
 
 void handleMethod(LocConfig *location, Response &response, Request &req, cgi &CGI)
 {
+
+	std::cout <<"0000"<< location->redirect_url << std::endl;
+	if (!location->redirect_url.empty()){
+		response.setStatus(301);
+        response.setHeader("Location", location->redirect_url);
+        return;
+    }
 	if (req.getMethod() == "GET" && findout("GET", location->allowed_methods)){
 		std::string filePath = "." + req.getPath();
 		if (!location->cgi_pass.empty() && req.getPath().find(location->path) == 0) {
