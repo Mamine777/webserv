@@ -85,9 +85,6 @@ static void recieveBody(int clientSocket, Request &req, pollfd &fd) {
 }
 
 static void	sendResponse(int clientSocket, Response &res) {
-	std::clog << "Sending response: " << std::endl
-		<< "- index: " << res.getIndex() << std::endl
-		<< "- bytesLeft: " << res.getRetVal().size() - res.getIndex() << std::endl; 
 	size_t	actbytes = res.getRetVal().size() - res.getIndex();
 	actbytes = actbytes > 2048 ? 2048 : actbytes;
 	if (actbytes <= 0) {

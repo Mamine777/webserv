@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/23 15:19:16 by mokariou          #+#    #+#             */
-/*   Updated: 2025/02/28 23:10:21 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/28 23:41:04 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -213,6 +213,168 @@ std::string Response::getRetVal() { return this->returnval; }
 void Response::setIndex(size_t val) {this->ind = val;}
 
 size_t Response::getIndex() { return this->ind; }
+
+void Response::setType(std::string type) {
+	if (type.find('/') != std::string::npos) {
+		this->setHeader("Content-Type", type);
+		return;
+	}
+	size_t pointpos = type.find_last_of('.');
+	if (pointpos == std::string::npos) {		
+		this->setHeader("Content-Type", "text/plain");
+		return;
+	}
+	std::string fileExt = type.substr(pointpos + 1);
+	// https://developer.mozilla.org/en-US/docs/Web/HTTP/MIME_types/Common_types
+	if (fileExt == "aac")
+		this->setHeader("Content-Type", "audio/aac");
+	else if (fileExt == "abw")
+		this->setHeader("Content-Type", "application/x-abiword");
+	else if (fileExt == "apng")
+		this->setHeader("Content-Type", "image/apng");
+	else if (fileExt == "arc")
+		this->setHeader("Content-Type", "application/x-freearc");
+	else if (fileExt == "avif")
+		this->setHeader("Content-Type", "image/avif");
+	else if (fileExt == "avi")
+		this->setHeader("Content-Type", "video/x-msvideo");
+	else if (fileExt == "azw")
+		this->setHeader("Content-Type", "application/vnd.amazon.ebook");
+	else if (fileExt == "bin")
+		this->setHeader("Content-Type", "application/octet-stream");
+	else if (fileExt == "bmp")
+		this->setHeader("Content-Type", "image/bmp");
+	else if (fileExt == "bz")
+		this->setHeader("Content-Type", "application/x-bzip");
+	else if (fileExt == "bz2")
+		this->setHeader("Content-Type", "application/x-bzip2");
+	else if (fileExt == "cda")
+		this->setHeader("Content-Type", "application/x-cdf");
+	else if (fileExt == "csh")
+		this->setHeader("Content-Type", "application/x-csh");
+	else if (fileExt == "css")
+		this->setHeader("Content-Type", "text/css");
+	else if (fileExt == "csv")
+		this->setHeader("Content-Type", "text/csv");
+	else if (fileExt == "doc")
+		this->setHeader("Content-Type", "application/msword");
+	else if (fileExt == "docx")
+		this->setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+	else if (fileExt == "eot")
+		this->setHeader("Content-Type", "application/vnd.ms-fontobject");
+	else if (fileExt == "epub")
+		this->setHeader("Content-Type", "application/epub+zip");
+	else if (fileExt == "gz")
+		this->setHeader("Content-Type", "application/x-gzip");
+	else if (fileExt == "gif")
+		this->setHeader("Content-Type", "image/gif");
+	else if (fileExt == "htm" || fileExt == "html")
+		this->setHeader("Content-Type", "text/html");
+	else if (fileExt == "ico")
+		this->setHeader("Content-Type", "image/vnd.microsoft.icon");
+	else if (fileExt == "ics")
+		this->setHeader("Content-Type", "text/calendar");
+	else if (fileExt == "jar")
+		this->setHeader("Content-Type", "application/java-archive");
+	else if (fileExt == "jpeg" || fileExt == "jpg")
+		this->setHeader("Content-Type", "image/jpeg");
+	else if (fileExt == "js")
+		this->setHeader("Content-Type", "text/javascript");
+	else if (fileExt == "json")
+		this->setHeader("Content-Type", "application/json");
+	else if (fileExt == "jsonld")
+		this->setHeader("Content-Type", "application/ld+json");
+	else if (fileExt == "mid" || fileExt == "midi")
+		this->setHeader("Content-Type", "audio/x-midi");
+	else if (fileExt == "mjs")
+		this->setHeader("Content-Type", "text/javascript");
+	else if (fileExt == "mp3")
+		this->setHeader("Content-Type", "audio/mpeg");
+	else if (fileExt == "mp4")
+		this->setHeader("Content-Type", "video/mp4");
+	else if (fileExt == "mpeg")
+		this->setHeader("Content-Type", "video/mpeg");
+	else if (fileExt == "mpkg")
+		this->setHeader("Content-Type", "application/vnd.apple.installer+xml");
+	else if (fileExt == "odp")
+		this->setHeader("Content-Type", "application/vnd.oasis.opendocument.presentation");
+	else if (fileExt == "ods")
+		this->setHeader("Content-Type", "application/vnd.oasis.opendocument.spreadsheet");
+	else if (fileExt == "odt")
+		this->setHeader("Content-Type", "application/vnd.oasis.opendocument.text");
+	else if (fileExt == "oga")
+		this->setHeader("Content-Type", "audio/ogg");
+	else if (fileExt == "ogv")
+		this->setHeader("Content-Type", "video/ogg");
+	else if (fileExt == "ogx")
+		this->setHeader("Content-Type", "application/ogg");
+	else if (fileExt == "opus")
+		this->setHeader("Content-Type", "audio/ogg");
+	else if (fileExt == "otf")
+		this->setHeader("Content-Type", "font/otf");
+	else if (fileExt == "png")
+		this->setHeader("Content-Type", "image/png");
+	else if (fileExt == "pdf")
+		this->setHeader("Content-Type", "application/pdf");
+	else if (fileExt == "php")
+		this->setHeader("Content-Type", "application/x-httpd-php");
+	else if (fileExt == "ppt")
+		this->setHeader("Content-Type", "application/vnd.ms-powerpoint");
+	else if (fileExt == "pptx")
+		this->setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.presentationml.presentation");
+	else if (fileExt == "rar")
+		this->setHeader("Content-Type", "application/vnd.rar");
+	else if (fileExt == "rtf")
+		this->setHeader("Content-Type", "application/rtf");
+	else if (fileExt == "sh")
+		this->setHeader("Content-Type", "application/x-sh");
+	else if (fileExt == "svg")
+		this->setHeader("Content-Type", "image/svg+xml");
+	else if (fileExt == "tar")
+		this->setHeader("Content-Type", "application/x-tar");
+	else if (fileExt == "tif" || fileExt == "tiff")
+		this->setHeader("Content-Type", "image/tiff");
+	else if (fileExt == "ts")
+		this->setHeader("Content-Type", "video/mp2t");
+	else if (fileExt == "ttf")
+		this->setHeader("Content-Type", "font/ttf");
+	else if (fileExt == "txt")
+		this->setHeader("Content-Type", "text/plain");
+	else if (fileExt == "vsd")
+		this->setHeader("Content-Type", "application/vnd.visio");
+	else if (fileExt == "wav")
+		this->setHeader("Content-Type", "audio/wav");
+	else if (fileExt == "weba")
+		this->setHeader("Content-Type", "audio/webm");
+	else if (fileExt == "webm")
+		this->setHeader("Content-Type", "video/webm");
+	else if (fileExt == "webp")
+		this->setHeader("Content-Type", "image/webp");
+	else if (fileExt == "woff")
+		this->setHeader("Content-Type", "font/woff");
+	else if (fileExt == "woff2")
+		this->setHeader("Content-Type", "font/woff2");
+	else if (fileExt == "xhtml")
+		this->setHeader("Content-Type", "application/xhtml+xml");
+	else if (fileExt == "xls")
+		this->setHeader("Content-Type", "application/vnd.ms-excel");
+	else if (fileExt == "xlsx")
+		this->setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+	else if (fileExt == "xml")
+		this->setHeader("Content-Type", "application/xml");
+	else if (fileExt == "xul")
+		this->setHeader("Content-Type", "application/vnd.mozilla.xul+xml");
+	else if (fileExt == "zip")
+		this->setHeader("Content-Type", "application/zip");
+	else if (fileExt == "3gp")
+		this->setHeader("Content-Type", "video/3gpp");
+	else if (fileExt == "3g2")
+		this->setHeader("Content-Type", "video/3gpp2");
+	else if (fileExt == "7z")
+		this->setHeader("Content-Type", "application/x-7z-compressed");
+	else
+		this->setHeader("Content-Type", "text/plain");
+}
 
 std::string Response::expectHeader(std::string httpVer, unsigned int code) {
     std::stringstream	ss;

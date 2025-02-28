@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/23 12:35:32 by mokariou          #+#    #+#             */
-/*   Updated: 2025/02/28 17:43:15 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/03/01 00:10:17 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,23 @@ std::string& Request::getRawReq() {
 
 void Request::setBody(std::string body) { this->_body = body; }
 
+void	normalizePath(std::string &path) {
+	bool toggle = false;
+	std::string::iterator	it = path.begin();;
+	for (; it != path.end(); ++it) {
+		if (toggle && *it == '/') {
+			it = path.erase(it);
+			--it;
+		}
+		if (*it == '/')
+			toggle = true;
+		else
+			toggle = false;
+	}
+	if (*(path.end() - 1) == '/' && path != "/")
+		path = path.substr(0, path.length() - 1);
+}
+
 void    Request::parse(std::string &rawRequest)
 {
 	std::istringstream requestStream(rawRequest);
@@ -50,6 +67,8 @@ void    Request::parse(std::string &rawRequest)
 		return ;
 	std::istringstream requestline(line);
 	requestline >> _method >> _path >> _version;
+
+	normalizePath(_path);
 
 	//std::cout << "=====.....>>>>>>" << _method << "====>>>>>>" << _path << _version;
 

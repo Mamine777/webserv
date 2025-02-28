@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/23 14:21:21 by mokariou          #+#    #+#             */
-/*   Updated: 2025/02/28 22:29:33 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/02/28 23:40:01 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ class Response
 		std::string	getRetVal();
 		void	setIndex(size_t val);
 		size_t	getIndex();
+		void	setType(std::string file);
 
 		static std::string	expectHeader(std::string httpVer, unsigned int code);
 };

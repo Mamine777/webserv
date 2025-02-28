@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/22 14:53:15 by mokariou          #+#    #+#             */
-/*   Updated: 2025/02/28 22:56:30 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/03/01 00:25:55 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
 		Config		config;
 		ParseConfig	parser(argv[1], config);
 		parser.parse();
-		config.printConfig();
+		config.ErrorsConfig();
 
 		Http		http;
 		handleServers(config, http);
