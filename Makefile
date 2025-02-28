@@ -1,40 +1,39 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    Makefile                                           :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: mokariou <mokariou@student.42.fr>          +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2025/02/22 14:51:14 by mokariou          #+#    #+#              #
-#    Updated: 2025/02/25 18:53:30 by mokariou         ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
+SRC_PATH = src/
+OBJ_PATH = obj/
+INC_PATH = inc/
+OUT_PATH = bin/
 
-NAME = webserv
-CC = c++
-GFLAGS = -Wall -Wextra -Werror -std=c++98 -g3 -fsanitize=address
+SRC_FILES = Http.cpp Request.cpp Response.cpp cgi.cpp main.cpp server.cpp utils_resp.cpp\
+			Config/Config.cpp Config/ParseConfig.cpp
 
-OBJ_DIR = obj/
-CFG_DIR = src/Config/
+SRC = $(addprefix ${SRC_PATH}, ${SRC_FILES})
+OBJ = $(patsubst $(SRC_PATH)%.cpp, $(OBJ_PATH)%.o, ${SRC})
+FINAL = bin/webserv
 
-SRC =	src/main.cpp src/server.cpp src/Request.cpp src/Response.cpp src/cgi.cpp \
-		src/utils_resp.cpp $(CFG_DIR)Config.cpp $(CFG_DIR)ParseConfig.cpp
+OBJ_DIRS := $(sort $(dir ${OBJ})) 
+FLAGS = -Wall -Wextra -Werror -std=c++98 -g3 -fsanitize=address
 
-OBJ = $(patsubst src/%.cpp, $(OBJ_DIR)%.o, $(SRC))
+all: ${FINAL}
 
-all: $(NAME)
+${FINAL}: ${OBJ} | ${OUT_PATH}
+	c++ ${FLAGS} -I ${INC_PATH} -o $@ $^
 
-$(NAME): $(OBJ)
-	$(CC) $(GFLAGS) $(OBJ) -o $(NAME)
+${OBJ_PATH}%.o: ${SRC_PATH}%.cpp | $(OBJ_DIRS)
+	c++ ${FLAGS} -I ${INC_PATH} -c $< -o $@
 
-$(OBJ_DIR)%.o: src/%.cpp
-	@mkdir -p $(dir $@)
-	$(CC) $(GFLAGS) -c $< -o $@
+$(OBJ_DIRS):
+
+	mkdir -p $@
+
+${OUT_PATH}:
+	mkdir -p ${OUT_PATH}
 
 clean:
-	rm -rf $(OBJ_DIR)
+	rm -rf ${OBJ_PATH}
 
 fclean: clean
-	rm -f $(NAME)
+	rm -rf ${OUT_PATH}
 
 re: fclean all
+
+.PHONY: all clean fclean re

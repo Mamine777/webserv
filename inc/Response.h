@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mokariou <mokariou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/23 14:21:21 by mokariou          #+#    #+#             */
-/*   Updated: 2025/02/23 16:35:28 by mokariou         ###   ########.fr       */
+/*   Updated: 2025/02/28 22:29:33 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,13 @@ class Response
 		std::string _statusMessage;
 		std::map<std::string, std::string> _headers;
 		std::string _body;
-		std::string getStatusMessage(int code) const;
+		static std::string getStatusMessage(int code);
+		bool		isfinished;
+		std::string	returnval;
+		size_t		ind;
 	public:
 		Response();
+		Response(std::string ver);
 		~Response(){};
 		void setStatus(int code);
     	void setHeader(const std::string &key, const std::string &value);
@@ -34,6 +38,14 @@ class Response
    		void setBodyFromFile(const std::string &filePath);
 		int	getStatus();
     	std::string toString() const;
+		void	done();
+		bool	isdone();
+		void	setRetVal(std::string retval);
+		std::string	getRetVal();
+		void	setIndex(size_t val);
+		size_t	getIndex();
+
+		static std::string	expectHeader(std::string httpVer, unsigned int code);
 };
 
 #endif

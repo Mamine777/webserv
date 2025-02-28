@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   utils_resp.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mokariou <mokariou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/23 16:30:53 by mokariou          #+#    #+#             */
-/*   Updated: 2025/02/26 13:27:24 by mokariou         ###   ########.fr       */
+/*   Updated: 2025/02/28 18:10:33 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/server.h"
+#include "server.h"
 
 std::string server::getContentType(const std::string &filePath) {
     size_t dotPos = filePath.find_last_of('.');
@@ -26,3 +27,9 @@ std::string server::getContentType(const std::string &filePath) {
     if (extension == "png") return "image/png";
     return "text/plain";
 }
+
+std::vector<int>& server::getServerSocks() {
+    return this->_serverSockets;
+}
+
+

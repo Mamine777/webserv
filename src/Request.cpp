@@ -3,14 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mokariou <mokariou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/23 12:35:32 by mokariou          #+#    #+#             */
-/*   Updated: 2025/02/23 13:37:52 by mokariou         ###   ########.fr       */
+/*   Updated: 2025/02/28 17:43:15 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/server.h"
+#include "Request.h"
+
+Request::Request(): finishHead(false), finishBody(false) {}
 
 std::string Request::getMethod()const {return this->_method;}
 
@@ -30,6 +33,12 @@ std::string Request::getHeader(const std::string &key) const
 	else
 		return "";
 }
+
+std::string& Request::getRawReq() {
+	return this->raw;
+}
+
+void Request::setBody(std::string body) { this->_body = body; }
 
 void    Request::parse(std::string &rawRequest)
 {
@@ -58,9 +67,11 @@ void    Request::parse(std::string &rawRequest)
 			_headers[key] = value;
 		}
 	}
-	//set the body if it exist
-	if (_headers.find("Content-Length") != _headers.end()) {
-			size_t contentLength = std::strtoul(_headers["Content-Length"].c_str(), NULL, 10);
-			_body = rawRequest.substr(rawRequest.find("\r\n\r\n") + 4, contentLength);
-	   }
 }
+
+bool Request::getFinishBody() const { return this->finishBody; }
+bool Request::getFinishHead() const { return this->finishHead; }
+size_t Request::getBodySize() const { return this->bodySize; }
+void Request::setBodySize(size_t i) {this->bodySize = i;}
+void Request::setFinishBody(bool v) { this->finishBody = v; }
+void Request::setFinishHead(bool v) {this->finishHead = v;}

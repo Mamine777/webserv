@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mokariou <mokariou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/23 12:13:26 by mokariou          #+#    #+#             */
-/*   Updated: 2025/02/23 12:42:31 by mokariou         ###   ########.fr       */
+/*   Updated: 2025/02/28 17:43:30 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,12 @@ class Request
 		std::string	_path;
 		std::string	_version;
 		std::string	_body;
+		std::string	raw;
+		bool		finishHead;
+		bool		finishBody;
+		size_t		bodySize;
 	public:
-		Request(){};
+		Request();
 		~Request(){};
 		void	parse(std::string &rawRequest);
 		std::string getMethod() const;
@@ -34,6 +38,15 @@ class Request
 		std::string getVersion() const;
 		std::string getHeader(const std::string &key) const;
 		std::string getBody() const;
+		std::string&	getRawReq();
+		void		setBody(std::string body);
+
+		bool	getFinishBody() const;
+		bool	getFinishHead() const;
+		void	setFinishBody(bool v);
+		void	setFinishHead(bool v);
+		size_t	getBodySize() const;
+		void	setBodySize(size_t i);
 };
 
 

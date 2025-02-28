@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mokariou <mokariou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/22 14:53:36 by mokariou          #+#    #+#             */
-/*   Updated: 2025/02/26 14:06:50 by mokariou         ###   ########.fr       */
+/*   Updated: 2025/02/28 23:00:52 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,8 @@
 #include "Request.h"
 #include <fstream>
 #include <algorithm>
-#include "../src/Config/ParseConfig.hpp"
-#include "../src/Config/Config.hpp"
+#include <Config/ParseConfig.hpp>
+#include "Config/Config.hpp"
 #include "Response.h"
 #include <string>
 #include "cgi.h"
@@ -45,22 +45,20 @@ class cgi;
 class server
 {
 	private:
-		Config	_config;
-		ParseConfig	configParse;
+		ServerConfig	&_config;
 		std::string _configFile;
 		std::vector<int> _serverSockets;
 		std::vector<int>    sockets;
 		std::vector<struct pollfd> _pollfds;
 		std::map<int, ServerConfig*> _serverConfigs;
 	
-		void setupServer();
-		void acceptConnection();
-		void handleClient(int clientSocket);
 	public:
-		server	(Config &config, ParseConfig &parser);
+		server	(ServerConfig &config);
 		~server();
+		void setupServer(uint16_t port);
 		std::string getContentType(const std::string &filePath);
-		void start();
+		std::vector<int>	&getServerSocks();
+		void	dispatchRequest(Request &req, Response &res);
 };
 void	handleMethod(LocConfig *location, Response &response, Request &req, cgi &CGI);
 
