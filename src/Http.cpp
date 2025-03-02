@@ -2,7 +2,21 @@
 
 Http::Http() {}
 
-Http::~Http() {}
+Http::~Http() {
+	std::vector<pollfd>::iterator	fdIt = this->fds.begin();
+	for (; fdIt != this->fds.end(); ++fdIt) {
+		close(fdIt->fd);
+	}
+
+	std::map<int, std::vector<server *> >::iterator servIt = this->socket_server.begin();
+	for (; servIt != this->socket_server.end(); ++servIt) {
+		std::vector<server *>::iterator servIit = servIt->second.begin();
+		for (; servIit != servIt->second.end(); ++servIit) {
+			server *servptr = *servIit;
+			delete servptr;
+		}
+	}
+}
 
 void Http::addport(uint16_t port, server *serv) {
 	int serverSocket;
@@ -133,7 +147,6 @@ static void	sendResponse(int clientSocket, Response &res) {
 }
 
 void Http::start() {
-	std::vector<struct pollfd> fds;
 	size_t					numServFds = 0;
 	std::map<int, int>	client_server;
 	std::map<int, Request> requests;
@@ -146,20 +159,20 @@ void Http::start() {
 			closeSockets(this->socket_server);
 			throw std::runtime_error(strerror(errno));
 		}
-		fds.push_back((pollfd) {servSock, POLLIN, 0});
+		this->fds.push_back((pollfd) {servSock, POLLIN, 0});
 		numServFds++;
 	}
 
 	std::cout << "started listening" << std::endl;
-	while (true) {
-		if (poll(&fds[0], fds.size(), -1) < 0) {
+	while (runServ) {
+		if (poll(&this->fds[0], this->fds.size(), -1) < 0) {
 			closeSockets(this->socket_server);
 			throw std::runtime_error(strerror(errno));
 		}
 
-		for (size_t i = 0; i < fds.size();) {
-			int currentFd = fds[i].fd;
-			if (fds[i].revents & POLLIN) {
+		for (size_t i = 0; i < this->fds.size();) {
+			int currentFd = this->fds[i].fd;
+			if (this->fds[i].revents & POLLIN) {
 				if (i < numServFds) {
 					sockaddr_in	clientAddr;
 					socklen_t	clientLen = sizeof(clientAddr);
@@ -168,7 +181,7 @@ void Http::start() {
 						++i;
 						continue;
 					}
-					fds.push_back((pollfd) {clientSock, POLLIN, 0});
+					this->fds.push_back((pollfd) {clientSock, POLLIN, 0});
 					std::cout << "Client intercepted" << std::endl;
 					client_server.insert(std::make_pair(clientSock, currentFd));
 					requests[clientSock] = Request();
@@ -178,12 +191,12 @@ void Http::start() {
 						continue ;
 					Request &req = (*reqIt).second;
 					if (!req.getFinishHead())
-						recieveHead(currentFd, req, fds[i]);
+						recieveHead(currentFd, req, this->fds[i]);
 					else if (!req.getFinishBody())
-						recieveBody(currentFd, req, fds[i]);
+						recieveBody(currentFd, req, this->fds[i]);
 				}
 			}
-			else if ((fds[i].revents & POLLOUT) && i >= numServFds) {
+			else if ((this->fds[i].revents & POLLOUT) && i >= numServFds) {
 				std::map<int, Response>::iterator resIt = responses.find(currentFd);
 				if (resIt == responses.end()) {
 					std::map<int, Request>::iterator reqIt = requests.find(currentFd);
@@ -201,8 +214,6 @@ void Http::start() {
 					std::map<int, int>::iterator	servIt = client_server.find(currentFd);
 					if (servIt == client_server.end())
 						continue;
-					std::cout << "current fd: " << currentFd << " first: " << servIt->first << " second: " << servIt->second << std::endl;
-					//TODO Add checking here please
 					server	*serv = getServerFromSocket(this->socket_server[servIt->second], req);
 					if (serv == NULL) {
 						std::cerr << "Server Not Found" << std::endl;
@@ -217,8 +228,8 @@ void Http::start() {
 					client_server.erase(currentFd);
 					requests.erase(currentFd);
 					responses.erase(currentFd);
-					fds[i] = fds.back();
-					fds.pop_back();
+					this->fds[i] = this->fds.back();
+					this->fds.pop_back();
 					continue;
 				}
 			}

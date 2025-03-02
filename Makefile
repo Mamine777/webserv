@@ -11,7 +11,7 @@ OBJ = $(patsubst $(SRC_PATH)%.cpp, $(OBJ_PATH)%.o, ${SRC})
 FINAL = bin/webserv
 
 OBJ_DIRS := $(sort $(dir ${OBJ})) 
-FLAGS = -Wall -Wextra -Werror -std=c++98 -g3 -fsanitize=address
+FLAGS = -Wall -Wextra -Werror -std=c++98 -g3
 
 all: ${FINAL}
 

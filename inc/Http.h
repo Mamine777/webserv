@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 17:01:29 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/03/02 15:38:12 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/03/02 21:35:39 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,14 @@
 #include <vector>
 #include <map>
 
+extern bool	runServ;
+
 class Http
 {
 private:
 	std::map<int, std::vector<server *> >	socket_server;
 	std::map<uint16_t, int>					port_socket;
+	std::vector<pollfd>						fds;
 public:
 	Http();
 	~Http();

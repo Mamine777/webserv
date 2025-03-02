@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/22 14:53:36 by mokariou          #+#    #+#             */
-/*   Updated: 2025/03/02 12:38:38 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/03/02 21:32:21 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,6 @@
 #include "Response.h"
 #include <string>
 #include "cgi.h"
-
 
 class Response;
 class Request;

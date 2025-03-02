@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 18:55:28 by mokariou          #+#    #+#             */
-/*   Updated: 2025/03/02 12:30:06 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/03/02 21:39:02 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,6 +102,7 @@ void handleMethod(LocConfig *location, Response &response, Request &req, cgi &CG
 				if ((dir = opendir(path.c_str())) == NULL) {
 					response.setStatus(500);
 					response.setBody("Internal Error");
+					closedir(dir);
 					return ;
 				}
 				ret += "	<ul>\n";
@@ -116,6 +117,7 @@ void handleMethod(LocConfig *location, Response &response, Request &req, cgi &CG
 					ret += "		<li><a href=\"" + req.getPath() + "/" + ent->d_name + "\">" + filename + "</a></li>\n";
 				}
 				ret += "	</ul>\n</body>\n</html>";
+				closedir(dir);
 				response.setType("text/html");
 				std::cout << "ran this" << std::endl;
 				response.setBody(ret);
