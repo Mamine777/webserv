@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/23 16:30:53 by mokariou          #+#    #+#             */
-/*   Updated: 2025/02/28 18:10:33 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/03/02 12:36:49 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,10 +26,6 @@ std::string server::getContentType(const std::string &filePath) {
     if (extension == "jpg" || extension == "jpeg") return "image/jpeg";
     if (extension == "png") return "image/png";
     return "text/plain";
-}
-
-std::vector<int>& server::getServerSocks() {
-    return this->_serverSockets;
 }
 
 

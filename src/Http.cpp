@@ -4,24 +4,56 @@ Http::Http() {}
 
 Http::~Http() {}
 
-void Http::addServer(server* server) {
-	this->servers.push_back(server);
-}
-
-void	closeSockets(std::vector<server *> servers) {
-	//TODO: do this atp ffs
-	(void)servers;
-}
-
-std::vector<server *>::iterator getServerFromSocket(std::vector<server *> &servers, int fd) {
-	std::vector<server *>::iterator it;
-	for (it = servers.begin(); it != servers.end(); ++it) {
-		server *serv = *it;
-		std::vector<int> serverSocks = serv->getServerSocks();
-		if (std::find(serverSocks.begin(), serverSocks.end(), fd) != serverSocks.end())
-			return it;
+void Http::addport(uint16_t port, server *serv) {
+	int serverSocket;
+	if (this->port_socket.find(port) == this->port_socket.end()) {
+		serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+		if (serverSocket < 0) {
+			throw std::runtime_error(strerror(errno));
+		}
+	
+		int opt = 1;
+		setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+		
+		sockaddr_in serverAddr;
+		serverAddr.sin_family = AF_INET;
+		serverAddr.sin_port = htons(port);
+		serverAddr.sin_addr.s_addr = INADDR_ANY;
+	
+		if (bind(serverSocket, (struct sockaddr *) &serverAddr, sizeof(serverAddr)) < 0) {
+			close(serverSocket);
+			throw std::runtime_error(strerror(errno));
+		}
+		this->port_socket[port] = serverSocket;
+	} else {
+		serverSocket = (*this->port_socket.find(port)).second;
 	}
-	return servers.end();
+	std::cout << "[" << serv->getConfig().server_name << "] added to port " << port << " (socket: " << serverSocket << ")" << std::endl;
+	this->socket_server[serverSocket].push_back(serv);
+}
+
+void	closeSockets(std::map<int, std::vector<server *> > &socket_server) {
+	//TODO: do this atp ffs
+	(void)socket_server;
+}
+
+//TODO: Check if smth like /uploads doesnt acces the /upload location
+server * getServerFromSocket(std::vector<server *> &servers, Request &req) {
+	server	*serv = NULL;
+	std::string	saveLoc = "";
+	std::vector<server *>::iterator	servIt = servers.begin();
+	for (; servIt != servers.end(); ++servIt) {
+		std::cout << "Checking server for location " << (*servIt)->getConfig().server_name << std::endl;
+		std::vector<LocConfig>::iterator locIt = (*servIt)->getConfig().locations.begin();
+		for (; locIt != (*servIt)->getConfig().locations.end(); ++locIt) {
+			std::cout << "Checked location " << req.getPath() << " ~= " << locIt->path << std::endl;
+			if (!req.getPath().compare(0, locIt->path.size(), locIt->path) && locIt->path.size() > saveLoc.size()) {
+				serv = (*servIt);
+				saveLoc = (*locIt).path;
+			}
+		}
+	}
+	return serv;
 }
 
 static void recieveHead(int clientSocket, Request &req, pollfd &fd) {
@@ -103,27 +135,25 @@ static void	sendResponse(int clientSocket, Response &res) {
 void Http::start() {
 	std::vector<struct pollfd> fds;
 	size_t					numServFds = 0;
-	std::map<int, server *>	requestServer;
+	std::map<int, int>	client_server;
 	std::map<int, Request> requests;
 	std::map<int, Response> responses;
 
-	std::vector<server *>::iterator	it = this->servers.begin();
-	for (; it != this->servers.end(); ++it) {
-		std::vector<int> serverSocks = (*it)->getServerSocks();
-		std::vector<int>::iterator iit = serverSocks.begin();
-		for (; iit != serverSocks.end(); ++iit) {
-			if (listen(*iit, 20) < 0) {
-				closeSockets(this->servers);
-				throw std::runtime_error(strerror(errno));
-			}
-			fds.push_back((pollfd) {*iit, POLLIN | POLLOUT, 0});
-			numServFds++;
+	std::map<int, std::vector<server *> >::iterator	it = this->socket_server.begin();
+	for (; it != this->socket_server.end(); ++it) {
+		int	servSock = it->first;
+		if (listen(servSock, 20) < 0) {
+			closeSockets(this->socket_server);
+			throw std::runtime_error(strerror(errno));
 		}
+		fds.push_back((pollfd) {servSock, POLLIN, 0});
+		numServFds++;
 	}
 
+	std::cout << "started listening" << std::endl;
 	while (true) {
 		if (poll(&fds[0], fds.size(), -1) < 0) {
-			closeSockets(this->servers);
+			closeSockets(this->socket_server);
 			throw std::runtime_error(strerror(errno));
 		}
 
@@ -139,13 +169,8 @@ void Http::start() {
 						continue;
 					}
 					fds.push_back((pollfd) {clientSock, POLLIN, 0});
-
-					std::vector<server *>::iterator serverIt = getServerFromSocket(this->servers, currentFd);
-					if (serverIt == this->servers.end()) {
-						closeSockets(this->servers);
-						throw std::runtime_error("No server found for socket");
-					}
-					requestServer.insert(std::make_pair(clientSock, *serverIt));
+					std::cout << "Client intercepted" << std::endl;
+					client_server.insert(std::make_pair(clientSock, currentFd));
 					requests[clientSock] = Request();
 				} else {
 					std::map<int, Request>::iterator reqIt = requests.find(currentFd);
@@ -173,16 +198,23 @@ void Http::start() {
 						throw std::runtime_error("Error creating new element in responses list");
 					}
 					Response &res = (*resIt).second;
-					std::map<int, server*>::iterator servIt = requestServer.find(currentFd);
-					if (servIt == requestServer.end())
-					throw std::runtime_error(std::string("Mixup in server sockets"));
-					servIt->second->dispatchRequest(req, res);
+					std::map<int, int>::iterator	servIt = client_server.find(currentFd);
+					if (servIt == client_server.end())
+						continue;
+					std::cout << "current fd: " << currentFd << " first: " << servIt->first << " second: " << servIt->second << std::endl;
+					//TODO Add checking here please
+					server	*serv = getServerFromSocket(this->socket_server[servIt->second], req);
+					if (serv == NULL) {
+						std::cerr << "Server Not Found" << std::endl;
+						continue ;
+					}
+					serv->dispatchRequest(req, res);
 					
 				}
 				sendResponse(currentFd, (*resIt).second);
 				if ((*resIt).second.isdone()) {
 					close(currentFd);
-					requestServer.erase(currentFd);
+					client_server.erase(currentFd);
 					requests.erase(currentFd);
 					responses.erase(currentFd);
 					fds[i] = fds.back();

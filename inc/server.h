@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/22 14:53:36 by mokariou          #+#    #+#             */
-/*   Updated: 2025/02/28 23:00:52 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/03/02 12:38:38 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,18 +47,18 @@ class server
 	private:
 		ServerConfig	&_config;
 		std::string _configFile;
-		std::vector<int> _serverSockets;
-		std::vector<int>    sockets;
-		std::vector<struct pollfd> _pollfds;
-		std::map<int, ServerConfig*> _serverConfigs;
+		//std::vector<int> _serverSockets;
+		//std::vector<int>    sockets;
+		//std::vector<struct pollfd> _pollfds;
+		//std::map<int, ServerConfig*> _serverConfigs;
 	
 	public:
 		server	(ServerConfig &config);
 		~server();
-		void setupServer(uint16_t port);
+		//void setupServer(uint16_t port);
 		std::string getContentType(const std::string &filePath);
-		std::vector<int>	&getServerSocks();
 		void	dispatchRequest(Request &req, Response &res);
+		ServerConfig	&getConfig();
 };
 void	handleMethod(LocConfig *location, Response &response, Request &req, cgi &CGI);
 

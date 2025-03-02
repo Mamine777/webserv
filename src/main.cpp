@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/22 14:53:15 by mokariou          #+#    #+#             */
-/*   Updated: 2025/03/01 00:25:55 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/03/02 12:36:18 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,7 @@ int	handleServers(Config &conf, Http &serv) {
 	std::vector<ServerConfig>::iterator servIt = conf.servers.begin();
 	for (; servIt != conf.servers.end(); ++servIt) {
 		server *tmpserv = new server((*servIt));
-		serv.addServer(tmpserv);
-		tmpserv->setupServer((*servIt).port);
+		serv.addport((*servIt).port, tmpserv);
 	}
 	return (1);
 }

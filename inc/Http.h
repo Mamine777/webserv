@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 17:01:29 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/02/28 16:06:15 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/03/02 15:38:12 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,15 +14,17 @@
 
 #include <server.h>
 #include <vector>
+#include <map>
 
 class Http
 {
 private:
-	std::vector<server *>	servers;
+	std::map<int, std::vector<server *> >	socket_server;
+	std::map<uint16_t, int>					port_socket;
 public:
 	Http();
 	~Http();
 
-	void	addServer(server *server);
+	void	addport(uint16_t port, server *serv);
 	void	start();
 };
