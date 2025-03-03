@@ -47,8 +47,10 @@ void Http::addport(uint16_t port, server *serv) {
 }
 
 void	closeSockets(std::map<int, std::vector<server *> > &socket_server) {
-	//TODO: do this atp ffs
-	(void)socket_server;
+	std::map<int, std::vector<server *> >::iterator	it = socket_server.begin();
+	for (; it != socket_server.end(); ++it) {
+		close(it->first);
+	}
 }
 
 //TODO: Check if smth like /uploads doesnt acces the /upload location
@@ -61,7 +63,7 @@ server * getServerFromSocket(std::vector<server *> &servers, Request &req) {
 		std::vector<LocConfig>::iterator locIt = (*servIt)->getConfig().locations.begin();
 		for (; locIt != (*servIt)->getConfig().locations.end(); ++locIt) {
 			std::cout << "Checked location " << req.getPath() << " ~= " << locIt->path << std::endl;
-			if (!req.getPath().compare(0, locIt->path.size(), locIt->path) && locIt->path.size() > saveLoc.size()) {
+			if (!req.getPath().compare(0, locIt->path.size(), locIt->path) && (locIt->path.size() == req.getPath().size() || req.getPath()[locIt->path.size()] == '/') && locIt->path.size() > saveLoc.size()) {
 				serv = (*servIt);
 				saveLoc = (*locIt).path;
 			}
@@ -212,12 +214,20 @@ void Http::start() {
 					}
 					Response &res = (*resIt).second;
 					std::map<int, int>::iterator	servIt = client_server.find(currentFd);
-					if (servIt == client_server.end())
+					if (servIt == client_server.end()) {
+						res.setStatus(404);
+						res.setBody("404 Not Found\n");
+						res.setRetVal(res.toString());
 						continue;
+					}
 					server	*serv = getServerFromSocket(this->socket_server[servIt->second], req);
 					if (serv == NULL) {
+						//make this work cuz it doesnt send 404 or nuhin just closes connection
 						std::cerr << "Server Not Found" << std::endl;
-						continue ;
+						res.setStatus(404);
+						res.setBody("404 Not Found\n");
+						res.setRetVal(res.toString());
+						continue;
 					}
 					serv->dispatchRequest(req, res);
 					
