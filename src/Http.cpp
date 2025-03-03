@@ -53,7 +53,6 @@ void	closeSockets(std::map<int, std::vector<server *> > &socket_server) {
 	}
 }
 
-//TODO: Check if smth like /uploads doesnt acces the /upload location
 server * getServerFromSocket(std::vector<server *> &servers, Request &req) {
 	server	*serv = NULL;
 	std::string	saveLoc = "";
