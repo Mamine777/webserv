@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cgi.h                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mokariou <mokariou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mokariou <mokariou>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 16:33:32 by mokariou          #+#    #+#             */
-/*   Updated: 2025/02/23 18:41:22 by mokariou         ###   ########.fr       */
+/*   Updated: 2025/03/08 16:39:46 by mokariou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 #include <sys/types.h>
 #include <fstream>
 #include <cstdlib>
+#include "server.h"
 
 class cgi
 {		
@@ -29,7 +30,7 @@ class cgi
         cgi(){};
         ~cgi(){};
 		bool	isCGIrequest(const std::string& path);
-		std::string    executeCgi(std::string path, const std::string &query);
+		std::string    executeCgi(std::string path, const std::string &query, LocConfig *location);
 
 
 };

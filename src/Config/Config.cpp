@@ -129,7 +129,8 @@ void Config::ErrorsConfig()
             }
 
             //  Vérifier la configuration CGI
-            if (!loc.cgi_pass.empty() && access(loc.cgi_pass.c_str(), X_OK) == -1)
+            std::cout << "====>" << loc.cgi_pass << std::endl;
+            if (!loc.cgi_pass.empty() && access(loc.cgi_pass.c_str(), F_OK) == -1)
             {
                 throw std::runtime_error("Error: CGI path not executable or existant: " + loc.cgi_pass);
             }

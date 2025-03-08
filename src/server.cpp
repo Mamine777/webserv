@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
+/*   By: mokariou <mokariou>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 18:55:28 by mokariou          #+#    #+#             */
-/*   Updated: 2025/03/01 00:28:31 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/03/08 16:38:20 by mokariou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,9 +61,6 @@ void handleMethod(LocConfig *location, Response &response, Request &req, cgi &CG
 	if (req.getMethod() == "GET" && findout("GET", location->allowed_methods)){
 		/* std::string filePath = "." + req.getPath();
 		if (!location->cgi_pass.empty() && req.getPath().find(location->path) == 0) {
-		std::string cgiOutput = CGI.executeCgi(location->cgi_pass, "");
-		response.setStatus(200);
-		response.setBody(cgiOutput);
 		}
 		else if (filePath == "./")
 		{
@@ -80,8 +77,9 @@ void handleMethod(LocConfig *location, Response &response, Request &req, cgi &CG
 				response.setStatus(200);
 		} */
 		if (!location->cgi_pass.empty()) {
-			(void)CGI; //mute compilation error
-			//TODO: Do something better than whats above, next time if you dont know just ask
+			std::string cgiOutput = CGI.executeCgi(location->cgi_pass, "", location);
+			response.setStatus(200);
+			response.setBody(cgiOutput);
 		} else if (location->directory_listing) {
 			std::string path = req.getPath().replace(0, location->path.size(), location->root + "/");
 			struct stat s;
