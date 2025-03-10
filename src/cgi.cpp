@@ -6,7 +6,7 @@
 /*   By: mokariou <mokariou>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 16:33:48 by mokariou          #+#    #+#             */
-/*   Updated: 2025/03/08 16:47:24 by mokariou         ###   ########.fr       */
+/*   Updated: 2025/03/10 14:08:20 by mokariou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,12 +43,23 @@ bool    findExtension(LocConfig *location, std::string fileType)
     }
     return false;
 }
-std::string cgi::executeCgi(std::string path, const std::string &query, LocConfig *location)
+
+std::string do_stuff(std::string path, LocConfig *location)
+{
+    std::string newPath = path;
+    size_t pos = path.find(location->path);
+    if (pos != std::string::npos)
+        newPath.replace(pos, location->path.length(), location->cgi_pass); 
+    return newPath;
+}
+std::string cgi::executeCgi(std::string pathOr, const std::string &query, LocConfig *location)
 {
     int fd[2], pid;
     std::string output;
     char *temp1;
 
+
+    std::string path = do_stuff(pathOr, location);
     if (pipe(fd) == -1) { error("pipe failed !\n 500 Internal Server Error"), exit(1); }
     pid = fork();
     if (pid < 0) { error("fork failed !"), exit(1); }
