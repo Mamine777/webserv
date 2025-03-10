@@ -63,21 +63,21 @@ void Config::ErrorsConfig()
             throw std::runtime_error("Error: Invalid port " + ss.str() + " must be between 1 and 65535");
         }
 
-        bool isDuplicate = false;
-        for (size_t j = 0; j < usedPorts.size(); j++)
-        {
-            if (usedPorts[j] == server.port)
-            {
-                isDuplicate = true;
-                break;
-            }
-        }
-        if (isDuplicate)
-        {
-            std::ostringstream ss;
-            ss << server.port;
-            throw std::runtime_error("Error: Port " + ss.str() + " defined multiple times.");
-        }
+        // bool isDuplicate = false;
+        // for (size_t j = 0; j < usedPorts.size(); j++)
+        // {
+        //     if (usedPorts[j] == server.port)
+        //     {
+        //         isDuplicate = true;
+        //         break;
+        //     }
+        // }
+        // if (isDuplicate)
+        // {
+        //     std::ostringstream ss;
+        //     ss << server.port;
+        //     throw std::runtime_error("Error: Port " + ss.str() + " defined multiple times.");
+        // }
         usedPorts.push_back(server.port);
 
         //     // Vérifier l'existence du fichier d'erreur (corrigé `error_page`)
