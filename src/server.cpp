@@ -6,7 +6,7 @@
 /*   By: mokariou <mokariou>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 18:55:28 by mokariou          #+#    #+#             */
-/*   Updated: 2025/03/10 13:54:28 by mokariou         ###   ########.fr       */
+/*   Updated: 2025/03/10 16:12:22 by mokariou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,10 @@ bool	hasDirTraversal(std::string path) {
 	}
 	return false;
 }
+void	setOutput(std::string path, Response response)
+{
+	
+}
 
 void handleMethod(LocConfig *location, Response &response, Request &req, cgi &CGI)
 {
@@ -77,7 +81,7 @@ void handleMethod(LocConfig *location, Response &response, Request &req, cgi &CG
 				response.setStatus(200);
 		} */
 		if (!location->cgi_pass.empty()) {
-			std::string cgiOutput = CGI.executeCgi(req.getPath(), "", location);
+			setOutput(CGI.executeCgi(req.getPath(), "", location), response);
 			response.setStatus(200);
 			response.setBody(cgiOutput);
 		} else if (location->directory_listing) {
