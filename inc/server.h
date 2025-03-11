@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
+/*   By: mokariou <mokariou>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/22 14:53:36 by mokariou          #+#    #+#             */
-/*   Updated: 2025/02/28 23:00:52 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/03/11 13:38:30 by mokariou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,12 @@
 class Response;
 class Request;
 class cgi;
+
+struct ParsedCgiOutput {
+    std::string headers;
+    std::string body;
+	std::string statusLine;
+};
 
 class server
 {

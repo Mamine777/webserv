@@ -6,7 +6,7 @@
 /*   By: mokariou <mokariou>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 18:55:28 by mokariou          #+#    #+#             */
-/*   Updated: 2025/03/10 16:12:22 by mokariou         ###   ########.fr       */
+/*   Updated: 2025/03/11 14:30:31 by mokariou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,9 +50,48 @@ bool	hasDirTraversal(std::string path) {
 	}
 	return false;
 }
-void	setOutput(std::string path, Response response)
-{
-	
+
+ParsedCgiOutput parseCgiOutput(const std::string& cgiOutput) {
+    ParsedCgiOutput result;
+
+    size_t pos = cgiOutput.find("\r\n\r\n");
+    if (pos == std::string::npos) {
+        result.headers = "Status: 500 Internal Server Error";
+        result.body = "CGI output malformed";
+        return result;
+    }
+    result.headers = cgiOutput.substr(0, pos);
+    result.body = cgiOutput.substr(pos + 4);
+
+	 std::istringstream stream(result.headers);
+    std::string line;
+    while (std::getline(stream, line)) {
+        if (line.find("Status:") == 0) {
+            result.statusLine = line.substr(8);
+            break;
+        }
+    }
+    if (result.statusLine.empty()) {
+        result.statusLine = "200 OK";
+    }
+    return result;
+}
+
+std::map<std::string, std::string> parseHeaders(const std::string& headers) {
+    std::map<std::string, std::string> headerMap;
+    std::istringstream stream(headers);
+    std::string line;
+
+    while (std::getline(stream, line) && !line.empty()) {
+        size_t colon = line.find(": ");
+        if (colon != std::string::npos) {
+            std::string key = line.substr(0, colon);
+            std::string value = line.substr(colon + 2);
+            headerMap[key] = value;
+        }
+    }
+
+    return headerMap;
 }
 
 void handleMethod(LocConfig *location, Response &response, Request &req, cgi &CGI)
@@ -63,27 +102,19 @@ void handleMethod(LocConfig *location, Response &response, Request &req, cgi &CG
 		return ;
 	}
 	if (req.getMethod() == "GET" && findout("GET", location->allowed_methods)){
-		/* std::string filePath = "." + req.getPath();
-		if (!location->cgi_pass.empty() && req.getPath().find(location->path) == 0) {
-		}
-		else if (filePath == "./")
-		{
-			filePath += location->index;
-			response.setBodyFromFile(filePath);
-			if (response.getStatus() == 404)
-				response.setBody("404 Not Found");
-		}
-		else {
-			response.setBodyFromFile(filePath);
-			if (response.getStatus() == 404)
-				response.setBody("404 Not Found");
-			else
-				response.setStatus(200);
-		} */
 		if (!location->cgi_pass.empty()) {
-			setOutput(CGI.executeCgi(req.getPath(), "", location), response);
-			response.setStatus(200);
-			response.setBody(cgiOutput);
+			std::string cgiOutput = CGI.executeCgi(req.getPath(), "", location);
+            ParsedCgiOutput parsed = parseCgiOutput(cgiOutput);
+            std::map<std::string, std::string> headerMap = parseHeaders(parsed.headers);
+            response.setBody(parsed.body);
+            if (headerMap.find("Status") != headerMap.end())
+                response.setStatus(atoi(headerMap["Status"].c_str()));
+            else
+                response.setStatus(200);
+            if (headerMap.find("Content-Type") != headerMap.end())
+                response.setType(headerMap["Content-Type"]);
+            else
+                response.setType("text/html");
 		} else if (location->directory_listing) {
 			std::string path = req.getPath().replace(0, location->path.size(), location->root + "/");
 			struct stat s;
