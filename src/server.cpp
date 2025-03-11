@@ -6,7 +6,7 @@
 /*   By: mokariou <mokariou>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 18:55:28 by mokariou          #+#    #+#             */
-/*   Updated: 2025/03/11 14:30:31 by mokariou         ###   ########.fr       */
+/*   Updated: 2025/03/11 16:35:56 by mokariou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,12 +32,33 @@ bool	findout(std::string Method, std::vector<std::string> allowed_method){
 
 }
 
-bool	request_checking(std::string path)
-{
-	if (path.find("src") != std::string::npos || path.find("inc") != std::string::npos ||
-		path.find("Makefile") != std::string::npos)
-		return false;
-	return true;
+bool isInDirectory(const std::string &path, const std::string &allowedDir) {
+    char realPath[PATH_MAX];
+    if (!realpath(path.c_str(), realPath)) {
+        return false;
+    }
+
+    std::string absPath(realPath);
+    return absPath.find(allowedDir) == 0;
+}
+
+bool request_checking(const std::string &path) {
+    std::vector<std::string> forbidden = {"src", "inc", "Makefile", "defaults", ".git", "config"};
+
+    for (size_t i = 0; i < forbidden.size(); i++) {
+        if (path.find(forbidden[i]) != std::string::npos)
+            return false;
+    }
+
+    if (path.find("..") != std::string::npos)
+        return false;
+
+    std::string safeDirectory = "/";
+
+    if (!isInDirectory(path, safeDirectory))
+        return false;
+
+    return true;
 }
 bool	hasDirTraversal(std::string path) {
 	size_t	first = 0;

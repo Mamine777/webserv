@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
+/*   By: mokariou <mokariou>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/22 14:53:15 by mokariou          #+#    #+#             */
-/*   Updated: 2025/03/01 00:25:55 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/03/11 16:18:51 by mokariou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ int	handleServers(Config &conf, Http &serv) {
 	return (1);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv, char **envp) {
 	if (argc < 2) {
 		std::cerr << "Missing config file argument" << std::endl;
 		return (1);
