@@ -147,7 +147,7 @@ static void	sendResponse(int clientSocket, Response &res) {
 		res.done();
 }
 
-void Http::start() {
+void Http::_start() {
 	size_t					numServFds = 0;
 	std::map<int, int>	client_server;
 	std::map<int, Request> requests;
@@ -243,6 +243,111 @@ void Http::start() {
 				}
 			}
 			++i;
+		}
+	}
+}
+
+static void recieveReq(int fd, Request &req, pollfd &pollfd) {
+	std::string contLenStr;
+	unsigned int contLen;
+	if (req.getFinishHead()) {
+		if (!contLenStr.empty()) {
+			std::stringstream ss(contLenStr);
+			ss >> contLen;
+		} else {
+			req.setFinishBody(true);
+			return ;
+		}
+	}
+
+	char buff[1024];
+	int bytesRead;
+	if (!req.getFinishHead() || req.getBodySize() < static_cast<size_t>(contLen)) {
+		bytesRead = recv(fd, buff, sizeof(buff), 0);
+		if (bytesRead < 0) {
+			std::cerr << "Error recieving data" << std::endl;
+		}
+		req.getRawReq().append(buff, bytesRead);
+		if (!req.getFinishHead() && (req.getRawReq().find("\r\n\r\n") != std::string::npos || bytesRead == 0)) {
+			req.setFinishHead(true);
+			req.parse(req.getRawReq());
+
+			req.setBodySize(req.getRawReq().size() - req.getRawReq().find("\r\n\r\n") + 4);
+			if (req.getHeader("Content-Length").empty()) {
+				req.setFinishBody(true);
+			}
+
+			//TODO: move things arround for only one send
+			std::string	expect(req.getHeader("Expect"));
+			unsigned int code = 0;
+			if (!expect.empty()) {
+				std::stringstream expss(expect);
+				expss >> code;
+				std::string	tmpHeader = Response::expectHeader(req.getVersion(), code);
+				send(fd, tmpHeader.c_str(), tmpHeader.size(), 0);
+			}
+		}
+		else if (req.getFinishHead() && bytesRead > 0)
+			req.setBodySize(req.getBodySize() + bytesRead);
+	} if (req.getFinishHead() && (req.getBodySize() >= static_cast<size_t>(contLen) || bytesRead == 0)) {
+		req.setFinishBody(true);
+		req.setBody(req.getRawReq().substr(req.getRawReq().find("\r\n\r\n") + 4));
+	}
+}
+
+//TODO: Add responding to requests
+//TODO: Add diff between time to get request and respond
+//TODO: Make temp responses go through only send
+//TODO: Make server work based on hostname
+
+void Http::start() {
+	size_t					numServFds = 0;
+	std::map<int, int>	client_server;
+	std::map<int, Request> requests;
+	std::map<int, Response> responses;
+
+	std::map<int, std::vector<server *> >::iterator	it = this->socket_server.begin();
+	for (; it != this->socket_server.end(); ++it) {
+		int	servSock = it->first;
+		if (listen(servSock, 20) < 0) {
+			closeSockets(this->socket_server);
+			throw std::runtime_error(strerror(errno));
+		}
+		this->fds.push_back((pollfd) {servSock, POLLIN | POLLOUT, 0});
+		numServFds++;
+	}
+	std::cout << "started listening" << std::endl;
+	while (runServ) {
+		if (poll(&this->fds[0], this->fds.size(), -1) < 0) {
+			closeSockets(this->socket_server);
+			throw std::runtime_error(strerror(errno));
+		}
+
+		for (size_t i = 0; i < this->fds.size();) {
+			int currentFd = this->fds[i].fd;
+			if (this->fds[i].revents & POLLIN) {
+				if (i < numServFds) {
+					sockaddr_in	clientAddr;
+					socklen_t	clientLen = sizeof(clientAddr);
+					int 		clientSock = accept(currentFd, (struct sockaddr *) &clientAddr, &clientLen);
+					if (clientSock == -1) {
+						std::cerr << "Failed to accept user connection..." << std::endl;
+						++i;
+						continue;
+					}
+					this->fds.push_back((pollfd) {clientSock, POLLIN | POLLOUT, 0});
+					std::cout << "Client intercepted" << std::endl;
+					client_server.insert(std::make_pair(clientSock, currentFd));
+					requests[clientSock] = Request();
+				} else {
+					std::map<int, Request>::iterator reqIt = requests.find(currentFd);
+					if (reqIt == requests.end())
+						continue;
+					Request &req = reqIt->second;
+					if (!req.getFinishHead() && !req.getFinishBody())
+						recieveReq(currentFd, req, fds[i]);
+				}
+			}
 		}
 	}
 }

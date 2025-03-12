@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 17:01:29 by fghysbre          #+#    #+#             */
-/*   Updated: 2025/03/02 21:35:39 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/03/12 20:10:59 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,4 +30,5 @@ public:
 
 	void	addport(uint16_t port, server *serv);
 	void	start();
+	void	_start();
 };
