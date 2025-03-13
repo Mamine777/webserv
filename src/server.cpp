@@ -6,7 +6,7 @@
 /*   By: mokariou <mokariou>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 18:55:28 by mokariou          #+#    #+#             */
-/*   Updated: 2025/03/10 13:54:28 by mokariou         ###   ########.fr       */
+/*   Updated: 2025/03/13 14:18:29 by mokariou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include "sys/stat.h"
 #include "sys/types.h"
 #include <dirent.h>
+#include <cstdlib>
 
 server::server(ServerConfig &config) : _config(config) {
 }
@@ -29,15 +30,57 @@ bool	findout(std::string Method, std::vector<std::string> allowed_method){
 		if (Method == allowed_method[i])
 			return true;
 	return false;
-
 }
+
+std::vector<std::string> split(const std::string &str, char delimiter)
+{
+    std::vector<std::string> result;
+    std::string temp;
+    
+    for (size_t i = 0; i < str.length(); i++) {
+        if (str[i] == delimiter) {
+            result.push_back(temp);
+            temp = "";
+        } else {
+            temp += str[i];
+        }
+    }
+    result.push_back(temp);
+    
+    return result;
+}
+
 
 bool	request_checking(std::string path)
 {
-	if (path.find("src") != std::string::npos || path.find("inc") != std::string::npos ||
-		path.find("Makefile") != std::string::npos)
-		return false;
+	std::vector<std::string> splitted = split(path, '/');
+	for (size_t i = 0 ; i < splitted.size(); i++)
+	{
+		if (splitted [i] == "src" || splitted[i] == "inc"
+			|| splitted[i] == "Makefile" || splitted[i] == ".." || splitted[i] == "defaults" || splitted[i] == "obj")
+				return false;	
+	}
 	return true;
+}
+std::string getFolder(std::string path, LocConfig *location){
+	std::vector<std::string> splitted = split(path, '/');
+	std::string rootPath;
+	bool a = false;
+	size_t pos = location->path.find('/');
+    rootPath = location->path.substr(pos + 1);
+	std::string folder = ".";
+	for (size_t i = 0 ; i < splitted.size(); i++)
+	{
+	
+		if (splitted[i] == rootPath)
+		{
+			splitted[i] = location->root;
+			a = true;
+		}
+		folder += "/" + splitted[i];
+	}
+	
+	return folder;
 }
 bool	hasDirTraversal(std::string path) {
 	size_t	first = 0;
@@ -51,6 +94,49 @@ bool	hasDirTraversal(std::string path) {
 	return false;
 }
 
+ParsedCgiOutput parseCgiOutput(const std::string& cgiOutput) {
+    ParsedCgiOutput result;
+
+    size_t pos = cgiOutput.find("\r\n\r\n");
+    if (pos == std::string::npos) {
+        result.headers = "Status: 500 Internal Server Error";
+        result.body = "CGI output malformed";
+        return result;
+    }
+    result.headers = cgiOutput.substr(0, pos);
+    result.body = cgiOutput.substr(pos + 4);
+
+	 std::istringstream stream(result.headers);
+    std::string line;
+    while (std::getline(stream, line)) {
+        if (line.find("Status:") == 0) {
+            result.statusLine = line.substr(8);
+            break;
+        }
+    }
+    if (result.statusLine.empty()) {
+        result.statusLine = "200 OK";
+    }
+    return result;
+}
+
+std::map<std::string, std::string> parseHeaders(const std::string& headers) {
+    std::map<std::string, std::string> headerMap;
+    std::istringstream stream(headers);
+    std::string line;
+
+    while (std::getline(stream, line) && !line.empty()) {
+        size_t colon = line.find(": ");
+        if (colon != std::string::npos) {
+            std::string key = line.substr(0, colon);
+            std::string value = line.substr(colon + 2);
+            headerMap[key] = value;
+        }
+    }
+
+    return headerMap;
+}
+
 void handleMethod(LocConfig *location, Response &response, Request &req, cgi &CGI)
 {
 	if (hasDirTraversal(req.getPath())) {
@@ -59,27 +145,19 @@ void handleMethod(LocConfig *location, Response &response, Request &req, cgi &CG
 		return ;
 	}
 	if (req.getMethod() == "GET" && findout("GET", location->allowed_methods)){
-		/* std::string filePath = "." + req.getPath();
-		if (!location->cgi_pass.empty() && req.getPath().find(location->path) == 0) {
-		}
-		else if (filePath == "./")
-		{
-			filePath += location->index;
-			response.setBodyFromFile(filePath);
-			if (response.getStatus() == 404)
-				response.setBody("404 Not Found");
-		}
-		else {
-			response.setBodyFromFile(filePath);
-			if (response.getStatus() == 404)
-				response.setBody("404 Not Found");
-			else
-				response.setStatus(200);
-		} */
 		if (!location->cgi_pass.empty()) {
-			std::string cgiOutput = CGI.executeCgi(req.getPath(), "", location);
-			response.setStatus(200);
-			response.setBody(cgiOutput);
+			std::string cgiOutput = CGI.executeCgi(req.getPath(), "", location, req);
+            ParsedCgiOutput parsed = parseCgiOutput(cgiOutput);
+            std::map<std::string, std::string> headerMap = parseHeaders(parsed.headers);
+            response.setBody(parsed.body);
+            if (headerMap.find("Status") != headerMap.end())
+                response.setStatus(atoi(headerMap["Status"].c_str()));
+            else
+                response.setStatus(200);
+            if (headerMap.find("Content-Type") != headerMap.end())
+                response.setType(headerMap["Content-Type"]);
+            else
+                response.setType("text/html");
 		} else if (location->directory_listing) {
 			std::string path = req.getPath().replace(0, location->path.size(), location->root + "/");
 			struct stat s;
@@ -154,10 +232,11 @@ void handleMethod(LocConfig *location, Response &response, Request &req, cgi &CG
 		std::string filePath = "." + req.getPath();
 		if (!request_checking(req.getPath())){
 			response.setStatus(403);
-			response.setBody("Forbidden");
+			response.setBody("Forbidden and chill bro");
 		}
-		else{
-			if (remove(filePath.c_str()) == 0) {
+		else {
+			std::string folder = getFolder(req.getPath(), location);
+			if (remove(folder.c_str()) == 0) {
 			response.setStatus(200);
 			response.setBody("File deleted successfully");}
 		}

@@ -6,7 +6,7 @@
 /*   By: mokariou <mokariou>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 16:33:48 by mokariou          #+#    #+#             */
-/*   Updated: 2025/03/10 14:08:20 by mokariou         ###   ########.fr       */
+/*   Updated: 2025/03/13 12:06:03 by mokariou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ std::string do_stuff(std::string path, LocConfig *location)
         newPath.replace(pos, location->path.length(), location->cgi_pass); 
     return newPath;
 }
-std::string cgi::executeCgi(std::string pathOr, const std::string &query, LocConfig *location)
+std::string cgi::executeCgi(std::string pathOr, const std::string &query, LocConfig *location, Request req)
 {
     int fd[2], pid;
     std::string output;
@@ -60,15 +60,29 @@ std::string cgi::executeCgi(std::string pathOr, const std::string &query, LocCon
 
 
     std::string path = do_stuff(pathOr, location);
+
+    std::map<std::string, std::string> envMap;
+        envMap["REQUEST_METHOD"] = req.getMethod();
+        envMap["QUERY_STRING"] = query;
+        envMap["SCRIPT_NAME"] = path;
+        envMap["SCRIPT_FILENAME"] = path;
+        envMap["GATEWAY_INTERFACE"] = "CGI/1.1";
+        envMap["REDIRECT_STATUS"] = "200";
+
+    char **envp = new char*[envMap.size() + 1];
+    int i = 0;
+    for (std::map<std::string, std::string>::iterator it = envMap.begin(); it != envMap.end(); ++it) {
+        std::string envString = it->first + "=" + it->second;
+        envp[i] = strdup(envString.c_str());
+        i++;
+    }
+    envp[i] = NULL;
     if (pipe(fd) == -1) { error("pipe failed !\n 500 Internal Server Error"), exit(1); }
     pid = fork();
     if (pid < 0) { error("fork failed !"), exit(1); }
 
     if (pid == 0) {
         close(fd[0]);
-        setenv("REQUEST_METHOD", "GET", 1);
-        setenv("QUERY_STRING", query.c_str(), 1);
-        
         if (!dup(fd[1], STDOUT_FILENO)) {
             error("dup failed"), exit(1);
         }
@@ -87,6 +101,10 @@ std::string cgi::executeCgi(std::string pathOr, const std::string &query, LocCon
         execve(argv[0], argv, envp);
         free(temp1);
         free(temp);
+        for (int j = 0; envp[j]; j++) {
+            free(envp[j]);
+        }
+       // delete[] envp;
     } 
     else {
         close(fd[1]);
@@ -100,6 +118,10 @@ std::string cgi::executeCgi(std::string pathOr, const std::string &query, LocCon
         }
         close(fd[0]);
         waitpid(pid, NULL, 0);
+        for (int j = 0; envp[j]; j++) {
+            free(envp[j]);
+        }
+        delete[] envp;
     }
     return output;
 }

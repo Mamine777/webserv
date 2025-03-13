@@ -6,7 +6,7 @@
 /*   By: mokariou <mokariou>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 16:33:32 by mokariou          #+#    #+#             */
-/*   Updated: 2025/03/08 16:39:46 by mokariou         ###   ########.fr       */
+/*   Updated: 2025/03/13 12:07:27 by mokariou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,9 +30,7 @@ class cgi
         cgi(){};
         ~cgi(){};
 		bool	isCGIrequest(const std::string& path);
-		std::string    executeCgi(std::string path, const std::string &query, LocConfig *location);
-
-
+        std::string executeCgi(std::string pathOr, const std::string &query, LocConfig *location, Request req);
 };
 
 void	error(const char *str);

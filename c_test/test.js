@@ -1,1 +1,11 @@
-console.log("yoo");
+console.log("Status: 404 OK\r");
+console.log("Content-Type: text/html\r");
+console.log("Connection: close");
+console.log("\r\n\r");
+console.log("<html>");
+console.log("<head><title>CGI Response</title></head>");
+console.log("<body>");
+console.log("<h1>lokakka</h1>");
+console.log("<p>This is a proper HTTP response from a CGI script.</p>");
+console.log("</body>");
+console.log("</html>");
