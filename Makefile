@@ -6,7 +6,7 @@
 #    By: mokariou <mokariou>                        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/11 12:46:57 by mokariou          #+#    #+#              #
-#    Updated: 2025/03/11 12:47:03 by mokariou         ###   ########.fr        #
+#    Updated: 2025/03/13 10:24:09 by mokariou         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,7 +23,7 @@ OBJ = $(patsubst $(SRC_PATH)%.cpp, $(OBJ_PATH)%.o, ${SRC})
 FINAL = bin/webserv
 
 OBJ_DIRS := $(sort $(dir ${OBJ})) 
-FLAGS = -Wall -Wextra -Werror -std=c++11 -g3 -fsanitize=address
+FLAGS = -Wall -Wextra -Werror -std=c++98 -g3 -fsanitize=address
 
 all: ${FINAL}
 

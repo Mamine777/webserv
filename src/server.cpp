@@ -6,7 +6,7 @@
 /*   By: mokariou <mokariou>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 18:55:28 by mokariou          #+#    #+#             */
-/*   Updated: 2025/03/11 16:35:56 by mokariou         ###   ########.fr       */
+/*   Updated: 2025/03/13 14:18:29 by mokariou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include "sys/stat.h"
 #include "sys/types.h"
 #include <dirent.h>
+#include <cstdlib>
 
 server::server(ServerConfig &config) : _config(config) {
 }
@@ -29,36 +30,57 @@ bool	findout(std::string Method, std::vector<std::string> allowed_method){
 		if (Method == allowed_method[i])
 			return true;
 	return false;
-
 }
 
-bool isInDirectory(const std::string &path, const std::string &allowedDir) {
-    char realPath[PATH_MAX];
-    if (!realpath(path.c_str(), realPath)) {
-        return false;
+std::vector<std::string> split(const std::string &str, char delimiter)
+{
+    std::vector<std::string> result;
+    std::string temp;
+    
+    for (size_t i = 0; i < str.length(); i++) {
+        if (str[i] == delimiter) {
+            result.push_back(temp);
+            temp = "";
+        } else {
+            temp += str[i];
+        }
     }
-
-    std::string absPath(realPath);
-    return absPath.find(allowedDir) == 0;
+    result.push_back(temp);
+    
+    return result;
 }
 
-bool request_checking(const std::string &path) {
-    std::vector<std::string> forbidden = {"src", "inc", "Makefile", "defaults", ".git", "config"};
 
-    for (size_t i = 0; i < forbidden.size(); i++) {
-        if (path.find(forbidden[i]) != std::string::npos)
-            return false;
-    }
-
-    if (path.find("..") != std::string::npos)
-        return false;
-
-    std::string safeDirectory = "/";
-
-    if (!isInDirectory(path, safeDirectory))
-        return false;
-
-    return true;
+bool	request_checking(std::string path)
+{
+	std::vector<std::string> splitted = split(path, '/');
+	for (size_t i = 0 ; i < splitted.size(); i++)
+	{
+		if (splitted [i] == "src" || splitted[i] == "inc"
+			|| splitted[i] == "Makefile" || splitted[i] == ".." || splitted[i] == "defaults" || splitted[i] == "obj")
+				return false;	
+	}
+	return true;
+}
+std::string getFolder(std::string path, LocConfig *location){
+	std::vector<std::string> splitted = split(path, '/');
+	std::string rootPath;
+	bool a = false;
+	size_t pos = location->path.find('/');
+    rootPath = location->path.substr(pos + 1);
+	std::string folder = ".";
+	for (size_t i = 0 ; i < splitted.size(); i++)
+	{
+	
+		if (splitted[i] == rootPath)
+		{
+			splitted[i] = location->root;
+			a = true;
+		}
+		folder += "/" + splitted[i];
+	}
+	
+	return folder;
 }
 bool	hasDirTraversal(std::string path) {
 	size_t	first = 0;
@@ -124,7 +146,7 @@ void handleMethod(LocConfig *location, Response &response, Request &req, cgi &CG
 	}
 	if (req.getMethod() == "GET" && findout("GET", location->allowed_methods)){
 		if (!location->cgi_pass.empty()) {
-			std::string cgiOutput = CGI.executeCgi(req.getPath(), "", location);
+			std::string cgiOutput = CGI.executeCgi(req.getPath(), "", location, req);
             ParsedCgiOutput parsed = parseCgiOutput(cgiOutput);
             std::map<std::string, std::string> headerMap = parseHeaders(parsed.headers);
             response.setBody(parsed.body);
@@ -210,10 +232,11 @@ void handleMethod(LocConfig *location, Response &response, Request &req, cgi &CG
 		std::string filePath = "." + req.getPath();
 		if (!request_checking(req.getPath())){
 			response.setStatus(403);
-			response.setBody("Forbidden");
+			response.setBody("Forbidden and chill bro");
 		}
-		else{
-			if (remove(filePath.c_str()) == 0) {
+		else {
+			std::string folder = getFolder(req.getPath(), location);
+			if (remove(folder.c_str()) == 0) {
 			response.setStatus(200);
 			response.setBody("File deleted successfully");}
 		}

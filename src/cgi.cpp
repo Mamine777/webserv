@@ -6,7 +6,7 @@
 /*   By: mokariou <mokariou>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 16:33:48 by mokariou          #+#    #+#             */
-/*   Updated: 2025/03/10 15:28:03 by mokariou         ###   ########.fr       */
+/*   Updated: 2025/03/13 12:06:03 by mokariou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ std::string do_stuff(std::string path, LocConfig *location)
         newPath.replace(pos, location->path.length(), location->cgi_pass); 
     return newPath;
 }
-std::string cgi::executeCgi(std::string pathOr, const std::string &query, LocConfig *location)
+std::string cgi::executeCgi(std::string pathOr, const std::string &query, LocConfig *location, Request req)
 {
     int fd[2], pid;
     std::string output;
@@ -62,7 +62,7 @@ std::string cgi::executeCgi(std::string pathOr, const std::string &query, LocCon
     std::string path = do_stuff(pathOr, location);
 
     std::map<std::string, std::string> envMap;
-        envMap["REQUEST_METHOD"] = "GET";
+        envMap["REQUEST_METHOD"] = req.getMethod();
         envMap["QUERY_STRING"] = query;
         envMap["SCRIPT_NAME"] = path;
         envMap["SCRIPT_FILENAME"] = path;
