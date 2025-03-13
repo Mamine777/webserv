@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/23 14:21:21 by mokariou          #+#    #+#             */
-/*   Updated: 2025/02/28 23:40:01 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/03/13 13:44:28 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ class Response
 		bool		isfinished;
 		std::string	returnval;
 		size_t		ind;
+		bool		final;
 	public:
 		Response();
 		Response(std::string ver);
@@ -45,6 +46,8 @@ class Response
 		void	setIndex(size_t val);
 		size_t	getIndex();
 		void	setType(std::string file);
+		bool	isFinal() const;
+		void	setFinal(bool v);
 
 		static std::string	expectHeader(std::string httpVer, unsigned int code);
 };

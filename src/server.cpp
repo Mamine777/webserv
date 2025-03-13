@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 18:55:28 by mokariou          #+#    #+#             */
-/*   Updated: 2025/03/02 21:39:02 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/03/13 16:03:40 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,7 +101,7 @@ void handleMethod(LocConfig *location, Response &response, Request &req, cgi &CG
 				struct dirent *ent;
 				if ((dir = opendir(path.c_str())) == NULL) {
 					response.setStatus(500);
-					response.setBody("Internal Error");
+					response.setBody("Internal Error test");
 					closedir(dir);
 					return ;
 				}
@@ -152,6 +152,7 @@ void handleMethod(LocConfig *location, Response &response, Request &req, cgi &CG
 			response.setHeader("Location", location->redirect_url);
 			response.setStatus(301);
 		} else {
+			response.setHeader("Connection", "close");
 			response.setStatus(200);
 		}
 	}
@@ -177,7 +178,7 @@ void handleMethod(LocConfig *location, Response &response, Request &req, cgi &CG
 void server::dispatchRequest(Request& req, Response& res) {
     std::string	longest = "";
 	LocConfig	*loc;
-	for (size_t i = 0; i < this->_config.locations.size(); i++)
+	/* for (size_t i = 0; i < this->_config.locations.size(); i++)
 	{
 		if (req.getPath().substr(0, this->_config.locations[i].path.size()) == this->_config.locations[i].path)
 		{
@@ -185,6 +186,13 @@ void server::dispatchRequest(Request& req, Response& res) {
 				loc = &this->_config.locations[i];
 				longest = this->_config.locations[i].path;
 			}
+		}
+	} */
+	std::vector<LocConfig>::iterator locIt = this->_config.locations.begin();
+	for (; locIt != this->_config.locations.end(); ++locIt) {
+		if ((!req.getPath().compare(0, locIt->path.size(), locIt->path) && (locIt->path.size() == req.getPath().size() || req.getPath()[locIt->path.size()] == '/') && locIt->path.size() > longest.size()) || (locIt->path == "/" && longest.empty())) {
+			loc = &(*locIt);
+			longest = loc->path;
 		}
 	}
 	if (!loc) {

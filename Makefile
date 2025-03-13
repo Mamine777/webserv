@@ -22,7 +22,6 @@ ${OBJ_PATH}%.o: ${SRC_PATH}%.cpp | $(OBJ_DIRS)
 	c++ ${FLAGS} -I ${INC_PATH} -c $< -o $@
 
 $(OBJ_DIRS):
-
 	mkdir -p $@
 
 ${OUT_PATH}:

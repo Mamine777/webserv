@@ -6,16 +6,16 @@
 /*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/23 15:19:16 by mokariou          #+#    #+#             */
-/*   Updated: 2025/02/28 23:41:04 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/03/13 13:45:03 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/server.h"
 #include "Response.h"
-Response::Response() : _version("HTTP/1.1"), _statusCode(200), _statusMessage("OK"), isfinished(false), ind(0)
+Response::Response() : _version("HTTP/1.1"), _statusCode(200), _statusMessage("OK"), isfinished(false), ind(0), final(true)
 {}
 
-Response::Response(std::string ver): _version(ver), _statusCode(200), _statusMessage("OK"), isfinished(false), ind(0) {}
+Response::Response(std::string ver): _version(ver), _statusCode(200), _statusMessage("OK"), isfinished(false), ind(0), final(true) {}
 
 std::string Response::getStatusMessage(int code)
 {
@@ -375,6 +375,10 @@ void Response::setType(std::string type) {
 	else
 		this->setHeader("Content-Type", "text/plain");
 }
+
+bool Response::isFinal() const { return this->final; }
+
+void Response::setFinal(bool v) {this->final = v;}
 
 std::string Response::expectHeader(std::string httpVer, unsigned int code) {
     std::stringstream	ss;
