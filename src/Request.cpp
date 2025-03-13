@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/23 12:35:32 by mokariou          #+#    #+#             */
-/*   Updated: 2025/03/01 00:10:17 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/03/13 21:46:59 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,8 @@ void    Request::parse(std::string &rawRequest)
 		if (colonPos != std::string::npos){
 			
 			std::string key = line.substr(0, colonPos);
+			if (colonPos > line.size())
+				continue ;
 			std::string value = line.substr(colonPos + 2);
 
 			_headers[key] = value;

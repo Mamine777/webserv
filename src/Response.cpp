@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/23 15:19:16 by mokariou          #+#    #+#             */
-/*   Updated: 2025/03/13 13:45:03 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/03/13 21:47:37 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -220,7 +220,7 @@ void Response::setType(std::string type) {
 		return;
 	}
 	size_t pointpos = type.find_last_of('.');
-	if (pointpos == std::string::npos) {		
+	if (pointpos == std::string::npos || pointpos + 1 > type.size()) {		
 		this->setHeader("Content-Type", "text/plain");
 		return;
 	}

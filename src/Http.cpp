@@ -123,7 +123,7 @@ static void sendResponse(int clientSocket, Response &res) {
         res.done();
         return;
     }
-    if (send(clientSocket, res.getRetVal().substr(res.getIndex(), 2048).c_str(),
+    if ((res.getIndex() > res.getRetVal().size()) || send(clientSocket, res.getRetVal().substr(res.getIndex(), 2048).c_str(),
              actbytes, 0) == -1) {
         std::cerr << "Failed to sent data" << std::endl;
         return;
@@ -204,8 +204,9 @@ static void recieveReq(int fd, Request &req,
         req.setFinishBody(true);
         steps[fd] = Http::CS_WRITE;
         std::clog << "Finished reading content for request " << fd << std::endl;
-        req.setBody(
-            req.getRawReq().substr(req.getRawReq().find("\r\n\r\n") + 4));
+        if (req.getRawReq().find("\r\n\r\n") + 4 <= req.getRawReq().size())
+            req.setBody(
+                req.getRawReq().substr(req.getRawReq().find("\r\n\r\n") + 4));
     }
 }
 
