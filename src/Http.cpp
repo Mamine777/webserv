@@ -79,25 +79,22 @@ bool isIPv4(const std::string &host) {
 }
 
 std::string getHostName(Request &req) {
-	if (req.getHeader("Host").empty())
-		return ("");
-	std::string hostname = req.getHeader("Host");
-	hostname = hostname.substr(0, hostname.find(":"));
-	if (hostname == "localhost") 
-		return ("");
-	if (isIPv4(hostname))
-		return ("");
-	return (hostname);
+    if (req.getHeader("Host").empty()) return ("");
+    std::string hostname = req.getHeader("Host");
+    hostname = hostname.substr(0, hostname.find(":"));
+    if (hostname == "localhost") return ("");
+    if (isIPv4(hostname)) return ("");
+    return (hostname);
 }
 
 server *getServerFromSocket(std::vector<server *> &servers, Request &req) {
     server *serv = NULL;
     std::string saveLoc = "";
-	std::string hostname = getHostName(req);
+    std::string hostname = getHostName(req);
     std::clog << "hostname of request" << hostname << std::endl;
     std::vector<server *>::iterator servIt = servers.begin();
     for (; servIt != servers.end(); ++servIt) {
-		if (!hostname.empty() && hostname != (*servIt)->getConfig().server_name)
+        if (!hostname.empty() && hostname != (*servIt)->getConfig().server_name)
             continue;
         std::cout << "Checking server for location "
                   << (*servIt)->getConfig().server_name << std::endl;
@@ -106,8 +103,13 @@ server *getServerFromSocket(std::vector<server *> &servers, Request &req) {
         for (; locIt != (*servIt)->getConfig().locations.end(); ++locIt) {
             std::cout << "Checked location " << req.getPath()
                       << " ~= " << locIt->path << std::endl;
-            if ((!req.getPath().compare(0, locIt->path.size(), locIt->path) && (locIt->path.size() == req.getPath().size() || req.getPath()[locIt->path.size()] == '/') && locIt->path.size() > saveLoc.size()) || (locIt->path == "/" && saveLoc.empty())) {
-				std::clog << "replaced location \"" << saveLoc << "\" with \"" << locIt->path << "\"" << std::endl; 
+            if ((!req.getPath().compare(0, locIt->path.size(), locIt->path) &&
+                 (locIt->path.size() == req.getPath().size() ||
+                  req.getPath()[locIt->path.size()] == '/') &&
+                 locIt->path.size() > saveLoc.size()) ||
+                (locIt->path == "/" && saveLoc.empty())) {
+                std::clog << "replaced location \"" << saveLoc << "\" with \""
+                          << locIt->path << "\"" << std::endl;
                 serv = (*servIt);
                 saveLoc = (*locIt).path;
             }
@@ -116,25 +118,38 @@ server *getServerFromSocket(std::vector<server *> &servers, Request &req) {
     return serv;
 }
 
-static void sendResponse(int clientSocket, Response &res) {
+static void sendResponse(int clientSocket, Response &res,
+                         std::map<int, Http::clientSteps> &steps) {
     size_t actbytes = res.getRetVal().size() - res.getIndex();
     actbytes = actbytes > 2048 ? 2048 : actbytes;
     if (actbytes <= 0) {
         res.done();
         return;
     }
-    if ((res.getIndex() > res.getRetVal().size()) || send(clientSocket, res.getRetVal().substr(res.getIndex(), 2048).c_str(),
-             actbytes, 0) == -1) {
-        std::cerr << "Failed to sent data" << std::endl;
+    if (res.getIndex() > res.getRetVal().size()) {
+        res.done();
         return;
     }
+    int bytes;
+    if ((bytes = send(clientSocket, res.getRetVal().substr(res.getIndex(), 2048).c_str(), actbytes, 0)) <= 0) {
+        if (bytes == -1) {
+            steps[clientSocket] = Http::CS_ERROR;
+            std::cerr << "Failed to sent data" << std::endl;
+            return;
+        } else if (bytes == 0) {
+            std::clog << "Warning: Client closed connection when more bytes were supposed to be sent" << std::endl;
+            res.done();
+            return ;
+        }
+    }
+    
     res.setIndex(res.getIndex() + actbytes);
     if (actbytes <= 0) res.done();
 }
 
-static void recieveReq(int fd, Request &req,
-                       std::map<int, Http::clientSteps> &steps,
-                       std::map<int, Response> &responses) {
+void Http::recieveReq(int fd, Request &req,
+                      std::map<int, Http::clientSteps> &steps,
+                      std::map<int, Response> &responses, int serverSock) {
     std::clog << "Recieving Data for request " << fd << std::endl;
     std::string contLenStr;
     unsigned int contLen;
@@ -160,8 +175,9 @@ static void recieveReq(int fd, Request &req,
         std::clog << "Read " << bytesRead << " bytes for request " << fd
                   << std::endl;
         if (bytesRead < 0) {
-            // TODO: Remove client if failed to read;
+            steps[fd] = Http::CS_ERROR;
             std::cerr << "Error recieving data" << std::endl;
+            return;
         }
         req.getRawReq().append(buff, bytesRead);
         if (!req.getFinishHead() &&
@@ -180,12 +196,37 @@ static void recieveReq(int fd, Request &req,
                           << std::endl;
             }
 
-            // TODO: move things arround for only one send
+            server *serv =
+                getServerFromSocket(this->socket_server[serverSock], req);
+            if (!serv) {
+                responses[fd] = Response(req.getVersion());
+                req.setFinishBody(true);
+                steps[fd] = Http::CS_WRITE;
+                this->errorPage(404, responses[fd], NULL);
+                return;
+            }
+
+            contLenStr = req.getHeader("Content-Length");
+            std::istringstream contLenss(contLenStr);
+            contLenss >> contLen;
+            std::cout << "Checking body size: "
+                      << serv->getConfig().client_max_body_size << " < "
+                      << contLen << std::endl;
+            if (static_cast<size_t>(contLen) >
+                serv->getConfig().client_max_body_size) {
+                responses[fd] = Response(req.getVersion());
+                req.setFinishBody(true);
+                steps[fd] = Http::CS_WRITE;
+                this->errorPage(413, responses[fd], serv);
+                return;
+            }
+
             std::string expect(req.getHeader("Expect"));
             unsigned int code = 0;
             if (!expect.empty()) {
                 responses[fd] = Response(req.getVersion());
                 req.setFinishBody(true);
+                steps[fd] = Http::CS_WRITE;
                 Response &res = responses[fd];
                 std::stringstream expss(expect);
                 expss >> code;
@@ -193,7 +234,6 @@ static void recieveReq(int fd, Request &req,
                           << " for request " << fd << std::endl;
                 res.setRetVal(Response::expectHeader(req.getVersion(), code));
                 res.setFinal(false);
-                steps[fd] = Http::CS_WRITE;
                 return;
             }
         } else if (req.getFinishHead() && bytesRead > 0)
@@ -210,7 +250,6 @@ static void recieveReq(int fd, Request &req,
     }
 }
 
-// TODO: Make server work based on hostname
 // TODO: return false if request conbt bigger than configed
 
 void Http::start() {
@@ -264,14 +303,23 @@ void Http::start() {
                     std::map<int, Request>::iterator reqIt =
                         requests.find(currentFd);
                     if (reqIt == requests.end()) {
-                        std::clog << 1 << std::endl;
+                        steps[currentFd] = CS_WRITE;
+                        responses[currentFd] = Response("HTTP/1.1");
+                        this->errorPage(500, responses[currentFd], NULL);
                         continue;
                     }
                     Request &req = reqIt->second;
-                    std::clog << "current getFinishBody status => "
-                              << req.getFinishBody() << std::endl;
                     if (!req.getFinishHead() || !req.getFinishBody())
-                        recieveReq(currentFd, req, steps, responses);
+                        recieveReq(currentFd, req, steps, responses,
+                                   client_server[currentFd]);
+                    if (steps[currentFd] == CS_ERROR) {
+                        close(currentFd);
+                        client_server.erase(currentFd);
+                        requests.erase(currentFd);
+                        this->fds[i] = this->fds.back();
+                        this->fds.pop_back();
+                        continue;
+                    }
                 }
             } else if (this->fds[i].revents & POLLOUT && i >= numServFds &&
                        steps[currentFd] == CS_WRITE) {
@@ -280,54 +328,39 @@ void Http::start() {
                 if (resIt == responses.end()) {
                     std::map<int, Request>::iterator reqIt =
                         requests.find(currentFd);
-                    if (reqIt == requests.end()) continue;
+                    if (reqIt == requests.end()) {
+                        responses[currentFd] = Response("HTTP/1.1");
+                        this->errorPage(500, responses[currentFd], NULL);
+                        continue;
+                    }
                     Request &req = reqIt->second;
                     std::clog << "started making response for request "
                               << currentFd << std::endl;
                     if (!req.getFinishHead() || !req.getFinishBody()) continue;
                     responses[currentFd] = Response(req.getVersion());
                     resIt = responses.find(currentFd);
-                    if (resIt == responses.end()) {
-                        // repond with server error;
-                        continue;
-                    }
                     Response &res = resIt->second;
                     std::map<int, int>::iterator servIt =
                         client_server.find(currentFd);
                     if (servIt == client_server.end()) {
-                        res.setStatus(404);
-                        res.setBody("404 Not Found\n");
-                        res.setRetVal(res.toString());
+                        this->errorPage(500, res, NULL);
                         continue;
                     }
                     server *serv = getServerFromSocket(
                         this->socket_server[servIt->second], req);
                     if (serv == NULL) {
-                        // make this work cuz it doesnt send 404 or nuhin just
-                        // closes connection
                         std::cerr << "Server Not Found" << std::endl;
-                        res.setStatus(404);
-                        res.setBody("404 Not Found\n");
-                        res.setRetVal(res.toString());
+                        this->errorPage(404, res, NULL);
                         continue;
                     }
                     serv->dispatchRequest(req, res);
                 }
-                sendResponse(currentFd, resIt->second);
-                if (resIt->second.isdone()) {
+                sendResponse(currentFd, resIt->second, steps);
+                if (resIt->second.isdone() || steps[currentFd] == CS_ERROR) {
                     std::clog << "done sending response to request "
                               << currentFd;
-                    if (!resIt->second.isFinal()) {
-                        std::clog
-                            << ", it was temp response, back to getting request"
-                            << std::endl;
-                        steps[currentFd] = CS_READ;
-                        requests.find(currentFd)->second.setFinishBody(false);
-                        std::clog
-                            << "setting request finish body back to false => "
-                            << requests.find(currentFd)->second.getFinishBody();
-                        responses.erase(currentFd);
-                    } else {
+                    if (resIt->second.isFinal() ||
+                        steps[currentFd] == CS_ERROR) {
                         std::clog << ", it was final, removing client"
                                   << std::endl;
                         close(currentFd);
@@ -337,10 +370,55 @@ void Http::start() {
                         this->fds[i] = this->fds.back();
                         this->fds.pop_back();
                         continue;
+                    } else if (!resIt->second.isFinal()) {
+                        std::clog
+                            << ", it was temp response, back to getting request"
+                            << std::endl;
+                        steps[currentFd] = CS_READ;
+                        requests.find(currentFd)->second.setFinishBody(false);
+                        std::clog
+                            << "setting request finish body back to false => "
+                            << requests.find(currentFd)->second.getFinishBody();
+                        responses.erase(currentFd);
                     }
                 }
             }
             ++i;
         }
     }
+}
+
+void Http::errorPage(int code, Response &res, server *server) {
+    if (server) {
+        server->errorPage(code, res);
+        return;
+    }
+
+    std::string fileStr;
+    std::string filePath = "errors/template.html";
+    std::ifstream file(filePath.c_str(), std::ios::in | std::ios::binary);
+    std::stringstream ss;
+
+    if (file.fail()) {
+        std::cerr << "Failed to open template error page" << std::endl;
+        return;
+    }
+    ss << file.rdbuf();
+    file.close();
+    fileStr = ss.str();
+
+    std::stringstream codess;
+    codess << code;
+    std::string strCode = codess.str();
+    fileStr.replace(fileStr.find("{{.code}}"), 9, strCode);
+    fileStr.replace(fileStr.find("{{.message}}"), 12,
+                    Response::getStatusMessage(code));
+    res.setBody(fileStr);
+    res.setStatus(code);
+    res.setType("text/html");
+    std::stringstream lengthss;
+    lengthss << fileStr.size();
+    res.setHeader("Content-Length", lengthss.str());
+    res.setHeader("Connection", "close");
+    res.setRetVal(res.toString());
 }
