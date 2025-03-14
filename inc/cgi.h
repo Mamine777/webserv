@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cgi.h                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mokariou <mokariou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 16:33:32 by mokariou          #+#    #+#             */
-/*   Updated: 2025/02/23 18:41:22 by mokariou         ###   ########.fr       */
+/*   Updated: 2025/03/14 20:29:15 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ class cgi
         cgi(){};
         ~cgi(){};
 		bool	isCGIrequest(const std::string& path);
-		std::string    executeCgi(std::string path, const std::string &query);
+		std::string executeCgi(std::string pathOr, const std::string &query, LocConfig *location, Request req);
 
 
 };

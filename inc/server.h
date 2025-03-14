@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/22 14:53:36 by mokariou          #+#    #+#             */
-/*   Updated: 2025/03/13 19:57:14 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/03/14 20:37:01 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,12 @@
 class Response;
 class Request;
 class cgi;
+
+struct ParsedCgiOutput {
+    std::string headers;
+    std::string body;
+	std::string statusLine;
+};
 
 class server {
    private:

@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/22 14:53:15 by mokariou          #+#    #+#             */
-/*   Updated: 2025/03/14 14:57:28 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/03/14 20:41:34 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ void	sighandler(int) {
 	runServ = false;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv, char **) {
 	if (argc < 2) {
 		std::cerr << "Missing config file argument" << std::endl;
 		return (1);
