@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 18:55:28 by mokariou          #+#    #+#             */
-/*   Updated: 2025/03/13 21:52:25 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/03/14 19:21:40 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,6 +113,8 @@ void handleMethod(LocConfig *location, Response &response, Request &req,
                     "	<h1>AutoIndex for: " + req.getPath() + "</h1>\n";
                 DIR *dir;
                 struct dirent *ent;
+                std::vector<std::string>    dirs;
+                std::vector<std::string>    files;
                 if ((dir = opendir(path.c_str())) == NULL) {
                     thisPtr->errorPage(500, response);
                     closedir(dir);
@@ -120,6 +122,21 @@ void handleMethod(LocConfig *location, Response &response, Request &req,
                 }
                 ret += "	<ul>\n";
                 while ((ent = readdir(dir)) != NULL) {
+                    if (std::string(ent->d_name) == ".." || std::string(ent->d_name) == ".") continue ;
+                    if (ent->d_type == DT_DIR)
+                        dirs.push_back(std::string(ent->d_name));
+                    else
+                        files.push_back(std::string(ent->d_name));
+                }
+                std::sort(dirs.begin(), dirs.end());
+                std::sort(files.begin(), files.end());
+                if (location->path != req.getPath())
+                ret += "		<li><a href=\"" + req.getPath() + "/..\">" + "../" + "</a></li>\n";
+                for (std::vector<std::string>::iterator it = dirs.begin(); it != dirs.end(); ++it)
+                    ret += "		<li><a href=\"" + req.getPath() + "/" + *it + "\">" + *it + "/</a></li>\n";
+                for (std::vector<std::string>::iterator it = files.begin(); it != files.end(); ++it)
+                    ret += "		<li><a href=\"" + req.getPath() + "/" + *it + "\">" + *it + "</a></li>\n";
+                /* while ((ent = readdir(dir)) != NULL) {
                     if (location->path == req.getPath() &&
                         std::string(ent->d_name) == "..")
                         continue;
@@ -128,11 +145,10 @@ void handleMethod(LocConfig *location, Response &response, Request &req,
                     if (ent->d_type == DT_DIR) filename += "/";
                     ret += "		<li><a href=\"" + req.getPath() + "/" +
                            ent->d_name + "\">" + filename + "</a></li>\n";
-                }
+                } */
                 ret += "	</ul>\n</body>\n</html>";
                 closedir(dir);
                 response.setType("text/html");
-                std::cout << "ran this" << std::endl;
                 response.setBody(ret);
             }
         } else if (!location->directory_listing && !location->root.empty()) {
@@ -250,7 +266,6 @@ void server::errorPage(int code, Response &res) {
 	else
 		filePath = "errors/template.html";
 
-    std::clog << "sending error page " << filePath << std::endl;
     std::string fileStr;
     if (filePath == "errors/template.html") {
         std::ifstream file(filePath.c_str(), std::ios::in | std::ios::binary);
@@ -289,7 +304,6 @@ void server::errorPage(int code, Response &res) {
     res.setType("text/html");
     std::stringstream lengthss;
     lengthss << fileStr.size();
-    std::cout << "Error content size: " << lengthss.str() << std::endl;
     res.setHeader("Content-Length", lengthss.str());
     res.setHeader("Connection", "close");
     res.setRetVal(res.toString());
