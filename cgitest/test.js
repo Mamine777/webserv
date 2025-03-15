@@ -1,4 +1,4 @@
-console.log("Status: 404 OK\r");
+console.log("Status: 200 OK\r");
 console.log("Content-Type: text/html\r");
 console.log("Connection: close");
 console.log("\r\n\r");

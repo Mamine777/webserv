@@ -49,6 +49,7 @@ std::string do_stuff(std::string path, LocConfig *location)
 {
     std::string newPath = path;
     size_t pos = path.find(location->path);
+	//fix here for when cgi handles base location ("/")
     if (pos != std::string::npos)
         newPath.replace(pos, location->path.length(), location->cgi_pass); 
     return newPath;
@@ -102,12 +103,14 @@ std::string cgi::executeCgi(std::string pathOr, const std::string &query, LocCon
         char *argv[] = {temp1, temp,NULL};
         char *envp[] = {NULL};
         execve(argv[0], argv, envp);
+		//FIXME: change these pointers for strings cuz they will leak if execve runs
         free(temp1);
         free(temp);
         for (int j = 0; envp[j]; j++) {
             free(envp[j]);
         }
        // delete[] envp;
+	   //FIXME: exit in case execve doesnt work
     } 
     else {
         close(fd[1]);
