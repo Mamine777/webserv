@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mokariou <mokariou>                        +#+  +:+       +#+        */
+/*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 18:55:28 by mokariou          #+#    #+#             */
-/*   Updated: 2025/03/17 13:44:22 by mokariou         ###   ########.fr       */
+/*   Updated: 2025/03/17 14:15:16 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,6 @@ bool request_checking(std::string path) {
 std::string getFolder(std::string path, LocConfig *location){
 	std::vector<std::string> splitted = split(path, '/');
 	std::string rootPath;
-	bool a = false;
 	size_t pos = location->path.find('/');
     rootPath = location->path.substr(pos + 1);
 	std::string folder = ".";
@@ -72,10 +71,7 @@ std::string getFolder(std::string path, LocConfig *location){
 	{
 	
 		if (splitted[i] == rootPath)
-		{
 			splitted[i] = location->root;
-			a = true;
-		}
 		folder += "/" + splitted[i];
 	}
         std::cout << folder << std::endl;
@@ -98,7 +94,6 @@ bool hasDirTraversal(std::string path) {
 ParsedCgiOutput parseCgiOutput(const std::string& cgiOutput) {
     ParsedCgiOutput result;
 
-	std::cout << cgiOutput << std::endl;
     size_t pos = cgiOutput.find("\r\n\r\n");
     if (pos == std::string::npos) {
         result.headers = "Status: 500 Internal Server Error";
@@ -212,13 +207,17 @@ void handleMethod(LocConfig *location, Response &response, Request &req,
                     ret += "		<li><a href=\"" + req.getPath() +
                            "/..\">" + "../" + "</a></li>\n";
                 for (std::vector<std::string>::iterator it = dirs.begin();
-                     it != dirs.end(); ++it)
-                    ret += "		<li><a href=\"" + req.getPath() + "/" +
-                           *it + "\">" + *it + "/</a></li>\n";
+                     it != dirs.end(); ++it) {
+					std::string	hasslash = (req.getPath() != "/" ? "/" : "");
+					ret += "		<li><a href=\"" + req.getPath() + hasslash +
+						*it + "\">" + *it + "/</a></li>\n";
+				}
                 for (std::vector<std::string>::iterator it = files.begin();
-                     it != files.end(); ++it)
-                    ret += "		<li><a href=\"" + req.getPath() + "/" +
-                           *it + "\">" + *it + "</a></li>\n";
+                     it != files.end(); ++it) {
+					std::string	hasslash = (req.getPath() != "/" ? "/" : "");
+					ret += "		<li><a href=\"" + req.getPath() + hasslash +
+						*it + "\">" + *it + "</a></li>\n";
+				}
                 ret += "	</ul>\n</body>\n</html>";
                 closedir(dir);
                 response.setType("text/html");
