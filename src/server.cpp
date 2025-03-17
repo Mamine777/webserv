@@ -6,7 +6,7 @@
 /*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 18:55:28 by mokariou          #+#    #+#             */
-/*   Updated: 2025/03/17 14:15:16 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/03/17 17:56:10 by fghysbre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,8 +74,6 @@ std::string getFolder(std::string path, LocConfig *location){
 			splitted[i] = location->root;
 		folder += "/" + splitted[i];
 	}
-        std::cout << folder << std::endl;
-	
 	return folder;
 }
 
@@ -142,7 +140,7 @@ void handleMethod(LocConfig *location, Response &response, Request &req,
     }
     if (req.getMethod() == "GET" && findout("GET", location->allowed_methods)) {
         if (!location->cgi_pass.empty()) {
-            std::string cgiOutput = CGI.executeCgi(req.getPath(), "", location, req);
+            std::string cgiOutput = CGI.executeCgi(req.getPath(), req.getPath().substr(req.getPath().find('?') + 1), location, req);
             ParsedCgiOutput parsed = parseCgiOutput(cgiOutput);
             std::map<std::string, std::string> headerMap = parseHeaders(parsed.headers);
             response.setBody(parsed.body);

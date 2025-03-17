@@ -1,0 +1,83 @@
+html, body {
+	height: 100%;
+	margin: 0;
+	flex-flow: column;
+}
+
+.header {
+	height: 5rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 1rem;
+}
+
+.fileUpload {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	height: calc(100% - 6rem);
+}
+
+#inputButton {
+	height: 6rem;
+	background-color: lightblue;
+	width: 12rem;
+	border-radius: 0.5rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-decoration: none;
+	color: black;
+	text-decoration: none;
+	border: none;
+	margin-bottom: 2rem;
+	box-shadow: rgb(132, 164, 175) 3px 3px;
+}
+
+.delete {
+	display: flex;
+}
+
+#deleteInput {
+	height: 1.5rem;
+	width: 14rem;
+	margin-right: 1rem;
+	border-radius: 5px;
+	border: none;
+	text-decoration: none;
+	background-color: rgb(235, 235, 235);
+	box-shadow: lightgray 3px 3px;
+}
+
+#deleteInput:focus {
+	text-decoration: none;
+	border: none;
+	outline: none;
+}
+
+#deleteButton {
+	text-decoration: none;
+	border: none;
+	border-radius: 5px;
+	background-color: lightblue;
+	box-shadow: rgb(132, 164, 175) 3px 3px;
+}
+
+.flatButton {
+	margin-top: 2rem;
+	height: 3rem;
+	background-color: lightblue;
+	width: 10rem;
+	border-radius: 0.5rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-decoration: none;
+	color: black;
+	text-decoration: none;
+	border: none;
+	margin-bottom: 2rem;
+	box-shadow: rgb(132, 164, 175) 3px 3px;
+}

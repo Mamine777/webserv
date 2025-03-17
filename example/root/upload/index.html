@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Upload a file</title>
+	<link rel="stylesheet" href="/upload/style.css">
+</head>
+<body>
+	<section class="header">
+		<center><h1 id="headerText">Tottaly Functionnal Webserv</h1></center>
+	</section>
+	<section class="fileUpload">
+		<button id="inputButton">Upload a file</button>
+		<input type="file" id="fileinput" style="display: none;">
+		<div class="delete">
+			<input type="text" placeholder="filename to delete" id="deleteInput">
+			<button id="deleteButton">Delete!</button>
+		</div>
+		<a class="flatButton" href="/uploads">View Files</a>
+	</section>
+	<script type="module" src="/upload/main.js"></script>
+</body>
+</html>

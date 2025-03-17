@@ -16,12 +16,12 @@
 
 bool    hasExt(const std::string &filename, const std::string &ext)
 {
-    size_t pos = filename.rfind('.');
+    size_t pos = filename.find('.', filename.find_last_of('/') + 1);
     
     if (pos == std::string::npos)
         return false;
-    std::string exetension = filename.substr(pos + 1);
-    if (exetension == ext)
+    std::string exetension = filename.substr(pos + 1, filename.find('?', pos + 1) - pos - 1);
+	if (exetension == ext)
         return true;
     return false;
 }
@@ -102,13 +102,15 @@ std::string cgi::executeCgi(std::string pathOr, const std::string &query, LocCon
         else if (hasExt(path, "php") && findExtension(location, ".php"))
             interpreter = "/usr/bin/php";
         else if (hasExt(path, "js") && findExtension(location, ".js"))
-            interpreter = "/usr/bin/node";
+            interpreter = "/home/boyflo06/.nvm/versions/node/v23.8.0/bin/node";
         else {
             error("not allowed type of execution file");
             exit(1);
         }
 
         std::vector<char*> argv;
+		size_t pointpos = path.find('.', path.find_last_of('/') + 1);
+		path = path.substr(0, path.find('?', pointpos != std::string::npos ? pointpos : 0));
         argv.push_back(const_cast<char*>(interpreter.c_str()));
         argv.push_back(const_cast<char*>(path.c_str()));
         argv.push_back(NULL);
