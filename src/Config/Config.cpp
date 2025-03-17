@@ -1,4 +1,4 @@
-#include "Config/Config.hpp"
+#include <Config/Config.hpp>
 void Config::printConfig() const
 {
     for (size_t i = 0; i < servers.size(); i++)
@@ -63,7 +63,7 @@ void Config::ErrorsConfig()
             throw std::runtime_error("Error: Invalid port " + ss.str() + " must be between 1 and 65535");
         }
 
-        /* bool isDuplicate = false;
+        bool isDuplicate = false;
         for (size_t j = 0; j < usedPorts.size(); j++)
         {
             if (usedPorts[j] == server.port)
@@ -77,7 +77,7 @@ void Config::ErrorsConfig()
             std::ostringstream ss;
             ss << server.port;
             throw std::runtime_error("Error: Port " + ss.str() + " defined multiple times.");
-        } */
+        }
         usedPorts.push_back(server.port);
 
         //     // Vérifier l'existence du fichier d'erreur (corrigé `error_page`)
@@ -129,7 +129,7 @@ void Config::ErrorsConfig()
             }
 
             //  Vérifier la configuration CGI
-            if (!loc.cgi_pass.empty() && access(loc.cgi_pass.c_str(), F_OK) == -1)
+            if (!loc.cgi_pass.empty() && access(loc.cgi_pass.c_str(), X_OK) == -1)
             {
                 throw std::runtime_error("Error: CGI path not executable or existant: " + loc.cgi_pass);
             }

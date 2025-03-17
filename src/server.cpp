@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fghysbre <fghysbre@student.s19.be>         +#+  +:+       +#+        */
+/*   By: mokariou <mokariou>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 18:55:28 by mokariou          #+#    #+#             */
-/*   Updated: 2025/03/14 21:29:57 by fghysbre         ###   ########.fr       */
+/*   Updated: 2025/03/17 13:44:22 by mokariou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,12 +59,12 @@ bool request_checking(std::string path) {
 				return false;	
 	}
     return true;
-}
+}   
 
 std::string getFolder(std::string path, LocConfig *location){
 	std::vector<std::string> splitted = split(path, '/');
 	std::string rootPath;
-	//bool a = false; <-- idk what this is
+	bool a = false;
 	size_t pos = location->path.find('/');
     rootPath = location->path.substr(pos + 1);
 	std::string folder = ".";
@@ -74,10 +74,11 @@ std::string getFolder(std::string path, LocConfig *location){
 		if (splitted[i] == rootPath)
 		{
 			splitted[i] = location->root;
-			//a = true; <-- prolly doesnt do much idk
+			a = true;
 		}
 		folder += "/" + splitted[i];
 	}
+        std::cout << folder << std::endl;
 	
 	return folder;
 }
@@ -97,7 +98,6 @@ bool hasDirTraversal(std::string path) {
 ParsedCgiOutput parseCgiOutput(const std::string& cgiOutput) {
     ParsedCgiOutput result;
 
-	std::cout << "hey dere" << std::endl;
 	std::cout << cgiOutput << std::endl;
     size_t pos = cgiOutput.find("\r\n\r\n");
     if (pos == std::string::npos) {
@@ -219,16 +219,6 @@ void handleMethod(LocConfig *location, Response &response, Request &req,
                      it != files.end(); ++it)
                     ret += "		<li><a href=\"" + req.getPath() + "/" +
                            *it + "\">" + *it + "</a></li>\n";
-                /* while ((ent = readdir(dir)) != NULL) {
-                    if (location->path == req.getPath() &&
-                        std::string(ent->d_name) == "..")
-                        continue;
-                    if (std::string(ent->d_name) == ".") continue;
-                    std::string filename = ent->d_name;
-                    if (ent->d_type == DT_DIR) filename += "/";
-                    ret += "		<li><a href=\"" + req.getPath() + "/" +
-                           ent->d_name + "\">" + filename + "</a></li>\n";
-                } */
                 ret += "	</ul>\n</body>\n</html>";
                 closedir(dir);
                 response.setType("text/html");
@@ -300,17 +290,7 @@ void handleMethod(LocConfig *location, Response &response, Request &req,
 void server::dispatchRequest(Request &req, Response &res) {
     std::string longest = "";
     LocConfig *loc;
-    /* for (size_t i = 0; i < this->_config.locations.size(); i++)
-    {
-            if (req.getPath().substr(0, this->_config.locations[i].path.size())
-    == this->_config.locations[i].path)
-            {
-                    if (this->_config.locations[i].path.size() > longest.size())
-    { loc = &this->_config.locations[i]; longest =
-    this->_config.locations[i].path;
-                    }
-            }
-    } */
+
     std::vector<LocConfig>::iterator locIt = this->_config.locations.begin();
     for (; locIt != this->_config.locations.end(); ++locIt) {
         if ((!req.getPath().compare(0, locIt->path.size(), locIt->path) &&
