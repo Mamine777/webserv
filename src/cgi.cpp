@@ -102,7 +102,7 @@ std::string cgi::executeCgi(std::string pathOr, const std::string &query, LocCon
         else if (hasExt(path, "php") && findExtension(location, ".php"))
             interpreter = "/usr/bin/php";
         else if (hasExt(path, "js") && findExtension(location, ".js"))
-            interpreter = "/home/boyflo06/.nvm/versions/node/v23.8.0/bin/node";
+            interpreter = "/usr/bin/node";
         else {
             error("not allowed type of execution file");
             exit(1);
