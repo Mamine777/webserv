@@ -1,8 +1,10 @@
 #include "Config/Config.hpp"
 void Config::printConfig() const
 {
+    std::cout << "NOMBRES DE SERVEURS RECUP : " << servers.size() << std::endl;
     for (size_t i = 0; i < servers.size(); i++)
     {
+
         std::cout << "Serveur #" << i + 1 << " :" << std::endl;
         std::cout << "  - Port : " << servers[i].port << std::endl;
         std::cout << "  - Host : " << servers[i].host << std::endl;
@@ -80,17 +82,17 @@ void Config::ErrorsConfig()
         }
         usedPorts.push_back(server.port);
 
-        //     // Vérifier l'existence du fichier d'erreur (corrigé `error_page`)
-        // if (!server.error_pages.empty()) {
-        //     for (std::map<int, std::string>::iterator it = server.error_pages.begin(); it != server.error_pages.end(); ++it) {
-        //         if (access(it->second.c_str(), F_OK) == -1) {
-        //             std::ostringstream ss;
-        //             ss << "Erreur: Fichier d'erreur non trouvé pour le code " << it->first << ": " << it->second;
-        //             throw std::runtime_error(ss.str());
-        //         }
-        //     }
-        // }
-    //verifier les locations si y a '/'
+            // Vérifier l'existence du fichier d'erreur (corrigé `error_page`)
+        if (!server.error_pages.empty()) {
+            for (std::map<int, std::string>::iterator it = server.error_pages.begin(); it != server.error_pages.end(); ++it) {
+                if (access(it->second.c_str(), F_OK) == -1) {
+                    std::ostringstream ss;
+                    ss << "Erreur: Fichier d'erreur non trouvé pour le code " << it->first << ": " << it->second;
+                    throw std::runtime_error(ss.str());
+                }
+            }
+        }
+        // verifier les locations si y a '/'
         bool hasRootLocation = false;
         for (size_t j = 0; j < server.locations.size(); j++)
         {
@@ -119,9 +121,9 @@ void Config::ErrorsConfig()
                 {
                     throw std::runtime_error("Error: Invalid http method : " + method + " in location " + loc.path);
                 }
-                if(method == "POST")
+                if (method == "POST")
                 {
-                    if(loc.upload_store.empty())
+                    if (loc.upload_store.empty())
                     {
                         throw std::runtime_error("Error : Method post but no upload store defined in config file" + loc.upload_store);
                     }

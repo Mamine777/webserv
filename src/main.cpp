@@ -44,6 +44,7 @@ int main(int argc, char **argv, char **) {
 		ParseConfig	parser(argv[1], config);
 		parser.parse();
 		config.ErrorsConfig();
+		config.printConfig();
 
 		Http		http;
 		handleServers(config, http);
