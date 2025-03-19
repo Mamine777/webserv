@@ -128,7 +128,14 @@ void ParseConfig::parse() {
             } else if (key == "directory_listing") {
                 std::string value;
                 iss >> value;
-                current_loc.directory_listing = (value == "on" || value == "on;");
+                if(value == "on" || value == "on;")
+                {
+                    current_loc.directory_listing = true;
+                }else 
+                {
+                    current_loc.directory_listing = false;
+                };
+                
             } else if (key == "upload_store") {
                 iss >> current_loc.upload_store;
                 if (!current_loc.upload_store.empty() && current_loc.upload_store[current_loc.upload_store.length() - 1] == ';') 
