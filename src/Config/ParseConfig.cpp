@@ -38,7 +38,10 @@ void ParseConfig::parse() {
     }
 
     ServerConfig current_server;
+    current_server.port = 0;
+    current_server.client_max_body_size = 0;
     LocConfig current_loc;
+    current_loc.directory_listing = false;
     std::string line;
     bool in_serv = false;
     bool in_loc = false;
@@ -54,6 +57,8 @@ void ParseConfig::parse() {
             if (in_serv && !in_loc) {
                 config.servers.push_back(current_server);
                 current_server = ServerConfig();
+                current_server.port = 0;
+                current_server.client_max_body_size = 0;
             }
             in_serv = true;
             in_loc = false;
@@ -70,10 +75,13 @@ void ParseConfig::parse() {
             if (in_loc) {
                 current_server.locations.push_back(current_loc);
                 current_loc = LocConfig();
+                current_loc.directory_listing = false;
                 in_loc = false;
             } else if (in_serv) {
                 config.servers.push_back(current_server);
                 current_server = ServerConfig();
+                current_server.port = 0;
+                current_server.client_max_body_size = 0;
                 in_serv = false;
             }
         }
