@@ -1,6 +1,6 @@
 # Webserv - HTTP Server
 
-##Made By
+## Made By
 M amine Kariouh && Florian Ghysbrecht && Firdawsse Mazouz
 
 Webserv is a lightweight HTTP server written in C++98, built as part of the 42 Network curriculum. It supports CGI execution, request handling, and custom configuration parsing.
