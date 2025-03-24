@@ -1,5 +1,8 @@
 # Webserv - HTTP Server
 
+##Made By
+M amine Kariouh && Florian Ghysbrecht && Firdawsse Mazouz
+
 Webserv is a lightweight HTTP server written in C++98, built as part of the 42 Network curriculum. It supports CGI execution, request handling, and custom configuration parsing.
 
 ## Features
@@ -24,8 +27,3 @@ curl -X POST http://localhost:8080/upload -d "data=test"
 curl -X DELETE http://localhost:8080/file.txt
 or
 you can serach in webBrowser http://localhost:8080/
-
-
-##Made By
-
-M amine Kariouh && Florian Ghysbrecht && Firdawsse Mazouz
